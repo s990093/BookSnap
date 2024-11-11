@@ -4,7 +4,7 @@ import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDropzone } from "react-dropzone";
 import Image from "next/image";
-import { XMarkIcon } from "@heroicons/react/24/solid";
+import { XMarkIcon,PlusIcon } from "@heroicons/react/24/solid";
 
 interface ImageUploadProps {
   onImagesSelected: (files: File[]) => void;
@@ -19,7 +19,7 @@ export function ImageUpload({
 }: ImageUploadProps) {
   const [previews, setPreviews] = useState<string[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-
+  const [Uploaded, setUploaded] = useState<boolean>(false);
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
       const totalImages = previews.length + acceptedFiles.length;
@@ -27,7 +27,7 @@ export function ImageUpload({
         alert(`Maximum ${maxFiles} files allowed`);
         return;
       }
-
+      setUploaded(true);
       setSelectedFiles((prev) => [...prev, ...acceptedFiles]);
       const newPreviews = acceptedFiles.map((file) =>
         URL.createObjectURL(file)
@@ -50,13 +50,16 @@ export function ImageUpload({
     setPreviews((prev) => prev.filter((_, i) => i !== index));
     setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
     onImagesSelected(selectedFiles.filter((_, i) => i !== index));
+    if (index==0) {
+      setUploaded((prev)=>!prev)
+    }
   };
 
   return (
     <div className="space-y-4">
-      <div
+      {<div
         {...getRootProps()}
-        className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors
+        className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${Uploaded ? 'hidden' : 'visible'}
           ${
             isDragActive
               ? "border-blue-500 bg-blue-500/10"
@@ -72,8 +75,7 @@ export function ImageUpload({
         <p className="text-gray-400 text-sm mt-2">
           Maximum {maxFiles} files allowed
         </p>
-      </div>
-
+      </div>}
       <AnimatePresence>
         {(previews.length > 0 || existingImages.length > 0) && (
           <motion.div
@@ -104,9 +106,9 @@ export function ImageUpload({
                     opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
                 >
                   <XMarkIcon className="w-4 h-4" />
-                </motion.button>
+                </motion.button>                
               </motion.div>
-            ))}
+            ))} 
             {previews.map((preview, index) => (
               <motion.div
                 key={preview}
@@ -130,11 +132,16 @@ export function ImageUpload({
                 >
                   <XMarkIcon className="w-4 h-4" />
                 </motion.button>
-              </motion.div>
+                </motion.div>
             ))}
-          </motion.div>
+            </motion.div>
         )}
+       {(<div {...getRootProps()} className={`flex outline rounded-lg justify-center ${Uploaded ?  "" : "hidden"}`}>
+                          <PlusIcon className="h-10">
+                            <input {...getInputProps()} />
+                          </PlusIcon>
+      </div>)}
       </AnimatePresence>
-    </div>
+      </div>
   );
 }
