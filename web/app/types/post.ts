@@ -1,0 +1,1 @@
+export type PostType = 'article' | 'news' | 'announcement' | string; 
