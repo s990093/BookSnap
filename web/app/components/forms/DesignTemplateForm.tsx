@@ -9,7 +9,6 @@ import { ImageUpload } from "./ImageUpload";
 import { TemplateImage } from "@/app/types";
 import { useRouter } from "next/navigation";
 import { Loading } from "../common/Loading";
-import { LazyLoadImage } from "@/app/components/common/LazyLoadImage";
 
 interface DesignTemplateFormProps {
   initialData?: TemplateImage;

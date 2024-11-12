@@ -12,7 +12,7 @@ import { motion } from "framer-motion";
 export default function PostHistory() {
   const { data: posts, isLoading } = useQuery<Post[]>({
     queryKey: ["posts", "history"],
-    queryFn: () => getPosts({ limit: 10 }),
+    queryFn: () => getPosts({ limit: 20 }),
   });
 
   if (isLoading) return <Loading />;
@@ -23,7 +23,11 @@ export default function PostHistory() {
       <div className="space-y-4 max-h-[calc(100vh-200px)] overflow-y-auto">
         {posts?.map((post, index) => (
           <Link href={`/posts/${post.id}`} key={post.id}>
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="p-2"
+            >
               <AnimatedCard delay={index * 0.1}>
                 <div className="space-y-2">
                   {/* 主圖片 */}
