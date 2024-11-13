@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
+import { useRef, useState, useEffect } from "react";
 
 const navItems = [
   { href: "/", label: "Dashboard" },
@@ -10,10 +11,26 @@ const navItems = [
   //   { href: "/events", label: "Events" },
   //   { href: "/design-templates", label: "Design Templates" },
 ];
-
 export function Navbar() {
   const pathname = usePathname();
-
+  const [NotiOpen,setNotiopen]  = useState(false);
+  // statue of having noti
+  const [HaveNoti,setHaveNoti]  = useState(false); 
+  function useOutsideAlerter(ref:React.RefObject<HTMLElement | HTMLButtonElement | null>) {
+    useEffect(() => {
+      function handleClickOutside(event:MouseEvent) {
+        if (ref.current && !ref.current.contains(event.target as Node)) {
+          setNotiopen(false)
+        }
+      }
+    document.addEventListener("mousedown", handleClickOutside);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
+    }, [ref]);
+  }
+  const NotiRef = useRef<HTMLInputElement | null>(null);
+  useOutsideAlerter(NotiRef);
   return (
     <nav className="bg-gray-800 border-b border-gray-700">
       <div className="container mx-auto px-4">
@@ -59,11 +76,11 @@ export function Navbar() {
 
           {/* User Menu */}
           <div className="flex items-center space-x-4">
-            <button className="text-gray-300 hover:text-white">
+            <button  className="text-gray-300 hover:text-white" onClick={()=> setNotiopen((prev) => !prev)}>
               <span className="sr-only">Notifications</span>
               <svg
                 className="h-6 w-6"
-                fill="none"
+                fill= {`${HaveNoti ? "red" : "none"}`}
                 stroke="currentColor"
                 viewBox="0 0 24 24"
               >
@@ -75,7 +92,9 @@ export function Navbar() {
                 />
               </svg>
             </button>
-
+            <div ref={NotiRef} className = {`bg-white h-4/6 w-1/6 top-12 rounded-lg right-52 absolute  ${NotiOpen ? "":"hidden"}`}>
+              <p className="text-center text-black">Noti</p>
+            </div>
             <button className="flex items-center space-x-2 text-gray-300 hover:text-white">
               <span className="sr-only">User menu</span>
               <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center">
