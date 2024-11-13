@@ -3,10 +3,15 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { useRef, useState, useEffect } from "react";
-
+import { PhotoIcon } from "@heroicons/react/24/solid";
+import { useState, useRef,useEffect } from "react";
 const navItems = [
   { href: "/", label: "Dashboard" },
+  {
+    href: "/instagram-posts",
+    label: "Instagram Posts",
+    icon: PhotoIcon,
+  },
   //   { href: "/posts", label: "Posts" },
   //   { href: "/events", label: "Events" },
   //   { href: "/design-templates", label: "Design Templates" },
@@ -37,7 +42,7 @@ export function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-3">
-            <span className="text-xl font-bold">Blog Admin</span>
+            <span className="text-xl font-bold text-white">Blog Admin</span>
           </Link>
 
           {/* Navigation Links */}
@@ -48,8 +53,15 @@ export function Navbar() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="relative px-3 py-2"
+                  className="relative px-3 py-2 flex items-center"
                 >
+                  {item.icon && (
+                    <item.icon
+                      className={`h-5 w-5 mr-2 ${
+                        isActive ? "text-white" : "text-gray-300"
+                      }`}
+                    />
+                  )}
                   <span
                     className={`relative z-10 ${
                       isActive ? "text-white" : "text-gray-300 hover:text-white"

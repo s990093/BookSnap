@@ -38,6 +38,7 @@
     "react-lazy-load-image-component": "^1.6.2",
     "react-query": "^3.39.3",
     "react-router-dom": "^6.28.0",
+    "react-select": "^5.8.3",
     "reactjs-flip-card": "^2.0.3",
     "shadcn-ui": "^0.9.3",
     "tailwind-merge": "^2.5.4",
