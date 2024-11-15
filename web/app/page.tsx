@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import { QuickActionsSection } from "./components/dashboard/QuickActionsSection";
 import { RecentPostsSection } from "./components/dashboard/RecentPostsSection";
 import { EventsSection } from "./components/dashboard/EventsSection";
