@@ -5,8 +5,11 @@ import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { PhotoIcon } from "@heroicons/react/24/solid";
 import { useState, useRef,useEffect } from "react";
+import { UserMenu } from "./NavbarModal/Menu";
 const navItems = [
-  { href: "/", label: "Dashboard" },
+  { href: "/", 
+    label: "Dashboard" 
+  },
   {
     href: "/instagram-posts",
     label: "Instagram Posts",
@@ -16,11 +19,16 @@ const navItems = [
   //   { href: "/events", label: "Events" },
   //   { href: "/design-templates", label: "Design Templates" },
 ];
+
 export function Navbar() {
   const pathname = usePathname();
-  const [NotiOpen,setNotiopen]  = useState(false);
+  const [NotiOpen,setNotiopen]  = useState<boolean>(false);
   // statue of having noti
-  const [HaveNoti,setHaveNoti]  = useState(false); 
+  const [HaveNoti,setHaveNoti]  = useState<boolean>(false); 
+
+  const [OnUserMenu,setCloseUserMenu] = useState<boolean>(false)
+  const MenuRef = useRef<HTMLDivElement>(null);
+
   function useOutsideAlerter(ref:React.RefObject<HTMLElement | HTMLButtonElement | null>) {
     useEffect(() => {
       function handleClickOutside(event:MouseEvent) {
@@ -33,10 +41,24 @@ export function Navbar() {
         document.removeEventListener("mousedown", handleClickOutside);
       };
     }, [ref]);
-  }
+  };
+  useEffect(() => {
+      function handleClickOutsides(event:MouseEvent) {
+        if (MenuRef.current && !MenuRef.current.contains(event.target as Node)) {
+          console.log(ref)
+          setCloseUserMenu(false)
+        }
+      }
+    document.addEventListener("mousedown", handleClickOutsides);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutsides);
+        
+      };
+    }, [OnUserMenu]);
   const NotiRef = useRef<HTMLInputElement | null>(null);
   useOutsideAlerter(NotiRef);
   return (
+    <>
     <nav className="bg-gray-800 border-b border-gray-700">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
@@ -104,10 +126,10 @@ export function Navbar() {
                 />
               </svg>
             </button>
-            <div ref={NotiRef} className = {`bg-white h-4/6 w-1/6 top-12 rounded-lg right-52 absolute  ${NotiOpen ? "":"hidden"}`}>
+            <div ref={NotiRef} className = {`bg-white h-4/6 w-1/6 top-12 rounded-lg right-52 absolute shadow-box  ${NotiOpen ? "":"hidden"}`}>
               <p className="text-center text-black">Noti</p>
             </div>
-            <button className="flex items-center space-x-2 text-gray-300 hover:text-white">
+            <button className="flex items-center space-x-2 text-gray-300 hover:text-white" onClick={()=>setCloseUserMenu((prev)=>!prev)}>
               <span className="sr-only">User menu</span>
               <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center">
                 <svg
@@ -129,5 +151,9 @@ export function Navbar() {
         </div>
       </div>
     </nav>
+    {
+        <UserMenu ref = {MenuRef} change = {setCloseUserMenu} res = {OnUserMenu}/>
+    }
+    </>
   );
 }

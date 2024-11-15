@@ -18,7 +18,7 @@ export function QuickActionsSection() {
       transition={{ delay: 0.1 }}
       className="grid grid-cols-1 gap-4"
     >
-      <h2 className="text-xl font-bold mb-2">Quick Actions</h2>
+      <h2 className="text-xl font-bold mb-2 select-none">Quick Actions</h2>
       {actions.map((action) => (
         <Link key={action.path} href={action.path}>
           <motion.div
@@ -26,8 +26,8 @@ export function QuickActionsSection() {
             whileTap={{ scale: 0.98 }}
             className="flex items-center space-x-3 bg-gray-800 p-4 rounded-lg hover:bg-gray-700 cursor-pointer"
           >
-            <span className="text-2xl">{action.icon}</span>
-            <span>{action.title}</span>
+            <span className="text-2xl select-none">{action.icon}</span>
+            <span className="select-none">{action.title}</span>
           </motion.div>
         </Link>
       ))}
