@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { PostType } from '@/types';
+import { PostType } from '@/app/types';
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'

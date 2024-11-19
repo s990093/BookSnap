@@ -28,11 +28,13 @@ export function Navbar() {
 
   const [OnUserMenu,setCloseUserMenu] = useState<boolean>(false)
   const MenuRef = useRef<HTMLDivElement>(null);
-
-  function useOutsideAlerter(ref:React.RefObject<HTMLElement | HTMLButtonElement | null>) {
+  function NotiClicked(){
+    setNotiopen((prev)=>!prev)
+  }
+  function useOutsideAlerter(ref:React.RefObject<HTMLElement | HTMLButtonElement | null>,ref2:React.RefObject<HTMLElement | HTMLButtonElement | null>) {
     useEffect(() => {
       function handleClickOutside(event:MouseEvent) {
-        if (ref.current && !ref.current.contains(event.target as Node)) {
+        if (ref.current && !ref.current.contains(event.target as Node) && !ref2.current.contains(event.target as Node)) {
           setNotiopen(false)
         }
       }
@@ -56,7 +58,8 @@ export function Navbar() {
       };
     }, [OnUserMenu]);
   const NotiRef = useRef<HTMLInputElement | null>(null);
-  useOutsideAlerter(NotiRef);
+  const NotiButtonRef = useRef<HTMLInputElement | null>(null);
+  useOutsideAlerter(NotiRef,NotiButtonRef);
   return (
     <>
     <nav className="bg-gray-800 border-b border-gray-700">
@@ -110,7 +113,7 @@ export function Navbar() {
 
           {/* User Menu */}
           <div className="flex items-center space-x-4">
-            <button  className="text-gray-300 hover:text-white" onClick={()=> setNotiopen((prev) => !prev)}>
+            <button ref={NotiButtonRef}  className="text-gray-300 hover:text-white" onClick={()=> NotiClicked()}>
               <span className="sr-only">Notifications</span>
               <svg
                 className="h-6 w-6"
@@ -126,7 +129,7 @@ export function Navbar() {
                 />
               </svg>
             </button>
-            <div ref={NotiRef} className = {`bg-white h-4/6 w-1/6 top-12 rounded-lg right-52 absolute shadow-box  ${NotiOpen ? "":"hidden"}`}>
+            <div ref={NotiRef}  className = {`bg-white h-4/6 w-1/6 top-12 rounded-lg right-52 absolute shadow-box  ${NotiOpen ? "":"hidden"}`}>
               <p className="text-center text-black">Noti</p>
             </div>
             <button className="flex items-center space-x-2 text-gray-300 hover:text-white" onClick={()=>setCloseUserMenu((prev)=>!prev)}>
