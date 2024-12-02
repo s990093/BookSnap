@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+from datetime import timedelta
 import os
 from pathlib import Path
 
@@ -31,12 +32,15 @@ CORS_ORIGIN_ALLOW_ALL = False
 
 CORS_ORIGIN_WHITELIST = [
     "http://127.0.0.1:8000",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:3001",
     'http://localhost:3000',  
     'http://0.0.0.0:3000', 
 ]
 
 CSRF_TRUSTED_ORIGINS = CORS_ORIGIN_WHITELIST
 CORS_ORIGIN_ALLOW_ALL = True  
+CORS_ALLOW_CREDENTIALS = True
 
 # Application definition
 
@@ -55,12 +59,16 @@ INSTALLED_APPS = [
     'corsheaders',
     'drf_yasg',
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     'rest_framework_simplejwt',
     'crispy_forms',
     'crispy_tailwind',
     'widget_tweaks',
 >>>>>>> 419ef2a (blog)
+=======
+    'rest_framework_simplejwt',
+>>>>>>> ae2a2fd (new)
     # app
     'blog',
 ]
@@ -84,7 +92,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            BASE_DIR / 'templates',
+            os.path.join(BASE_DIR, 'templates'), 
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -236,8 +244,11 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 #         "success": "btn-success"
 #     }
 <<<<<<< HEAD
+<<<<<<< HEAD
 # }
 =======
+=======
+>>>>>>> ae2a2fd (new)
 # }
 
 REST_FRAMEWORK = {
@@ -252,6 +263,7 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
     'ROTATE_REFRESH_TOKENS': True,
     'AUTH_HEADER_TYPES': ('Bearer',),
+<<<<<<< HEAD
 }
 
 
@@ -259,3 +271,6 @@ LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'  
 LOGOUT_REDIRECT_URL = '/login/'
 >>>>>>> 419ef2a (blog)
+=======
+}
+>>>>>>> ae2a2fd (new)

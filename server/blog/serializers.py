@@ -1,12 +1,16 @@
 from rest_framework import serializers
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 from .models import PostType, Post, PostImage, Event, TemplateImage
 from django.utils import timezone
 =======
 =======
 >>>>>>> 675d26b (reel model)
 from .models import Country, Author, PostType, Post, Image, Reel
+=======
+from .models import Country, Author, PostType, Post, Image
+>>>>>>> ae2a2fd (new)
 
 class CountrySerializer(serializers.ModelSerializer):
     class Meta:
@@ -19,64 +23,27 @@ class AuthorSerializer(serializers.ModelSerializer):
         model = Author
         fields = '__all__'
 
+<<<<<<< HEAD
 >>>>>>> 675d26b (reel model)
+=======
+>>>>>>> ae2a2fd (new)
 
 class PostTypeSerializer(serializers.ModelSerializer):
-    posts_count = serializers.SerializerMethodField()
-
     class Meta:
         model = PostType
-        fields = ['id', 'name', 'description', 'created_at', 'updated_at', 'posts_count']
+        fields = '__all__'
 
-    def get_posts_count(self, obj):
-        return obj.posts.count()
 
-class EventSerializer(serializers.ModelSerializer):
+class ImageSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Event
-        fields = ['id', 'title', 'description', 'location', 'date', 'time', 
-                 'created_at', 'updated_at']
-        
-    def validate(self, data):
-        # 確保日期不是過去的日期
-        if data['date'] < timezone.now().date():
-            raise serializers.ValidationError("活動日期不能是過去的日期")
-        return data
+        model = Image
+        fields = '__all__'
 
-class TemplateImageSerializer(serializers.ModelSerializer):
-    image_url = serializers.SerializerMethodField()
-
-    class Meta:
-        model = TemplateImage
-        fields = ['id', 'image', 'description', 'created_at', 'updated_at', 'image_url']
-
-    def get_image_url(self, obj):
-        if obj.image:
-            return self.context['request'].build_absolute_uri(obj.image.url)
-        return None
-
-class PostImageSerializer(serializers.ModelSerializer):
-    image_url = serializers.SerializerMethodField()
-
-    class Meta:
-        model = PostImage
-        fields = ['id', 'image', 'alt_text', 'created_at', 'image_url']
-
-    def get_image_url(self, obj):
-        if obj.image:
-            return self.context['request'].build_absolute_uri(obj.image.url)
-        return None
 
 class PostSerializer(serializers.ModelSerializer):
-    images = PostImageSerializer(many=True, read_only=True)
-    uploaded_images = serializers.ListField(
-        child=serializers.ImageField(),
-        write_only=True,
-        required=False
-    )
-
     class Meta:
         model = Post
+<<<<<<< HEAD
 <<<<<<< HEAD
         fields = ['id', 'title', 'content', 'tag', 'type', 
                  'created_at', 'updated_at', 'images', 'uploaded_images']
@@ -118,3 +85,7 @@ class ReelSerializer(serializers.ModelSerializer):
 =======
         fields = ['id', 'title', 'video', 'content', 'user', 'created_at']
 >>>>>>> 675d26b (reel model)
+=======
+        fields = ['id', 'title', 'post_type', 'content', 'images', 'user', 'country', 'author']
+        read_only_fields = ['user']
+>>>>>>> ae2a2fd (new)

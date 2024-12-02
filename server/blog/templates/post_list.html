@@ -30,6 +30,7 @@
         </button>
 
         <select
+<<<<<<< HEAD
           id="userFilter"
           class="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 transition-colors duration-200"
         >
@@ -40,6 +41,8 @@
         </select>
 
         <select
+=======
+>>>>>>> ae2a2fd (new)
           id="typeFilter"
           class="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 transition-colors duration-200"
         >
@@ -141,7 +144,11 @@
               </td>
               <td class="p-4">{{ post.title }}</td>
               <td class="p-4">{{ post.post_type.name }}</td>
+<<<<<<< HEAD
               <td class="p-4">{{ post.author.name }}</td>
+=======
+              <td class="p-4">{{ post.author.username }}</td>
+>>>>>>> ae2a2fd (new)
               <td class="p-4">
                 <a
                   href="{% url 'download_post' post.id %}"
@@ -280,6 +287,7 @@
           countryFilter.value = currentCountry;
         }
 
+<<<<<<< HEAD
         // 添加使用者過濾功能
         const userFilter = document.getElementById("userFilter");
         userFilter.addEventListener("change", function () {
@@ -301,6 +309,8 @@
           userFilter.value = currentUser;
         }
 
+=======
+>>>>>>> ae2a2fd (new)
         // 添加 Load More 功能
         const loadMoreBtn = document.getElementById("loadMore");
         if (loadMoreBtn) {

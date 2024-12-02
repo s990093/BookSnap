@@ -19,6 +19,7 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 <<<<<<< HEAD
+<<<<<<< HEAD
 from rest_framework.routers import DefaultRouter
 from blog.views import (
     PostViewSet, PostTypeViewSet, PostImageViewSet,
@@ -70,4 +71,15 @@ urlpatterns = [
 >>>>>>> 675d26b (reel model)
 =======
 >>>>>>> 419ef2a (blog)
+=======
+
+from blog.views import upload_file, post_list
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+
+    path('api/', include("blog.urls")),
+    path('upload/', upload_file, name='upload_file'),
+    path("post-list/", post_list, name="post-list"),
+>>>>>>> ae2a2fd (new)
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
