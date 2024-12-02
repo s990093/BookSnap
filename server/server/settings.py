@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+from datetime import timedelta
 import os
 from pathlib import Path
 
@@ -30,6 +31,8 @@ ALLOWED_HOSTS = ["*"]
 
 CORS_ORIGIN_WHITELIST = [
     "http://127.0.0.1:8000",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:3001",
     'http://localhost:3000',  
     'http://0.0.0.0:3000', 
     'http://49.213.238.75:3000',  
@@ -40,6 +43,7 @@ CORS_ORIGIN_WHITELIST = [
 
 CSRF_TRUSTED_ORIGINS = CORS_ORIGIN_WHITELIST
 CORS_ORIGIN_ALLOW_ALL = True  
+CORS_ALLOW_CREDENTIALS = True
 
 # Application definition
 
@@ -57,6 +61,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'drf_yasg',
+    'rest_framework_simplejwt',
     # app
     'blog',
 ]
@@ -79,7 +84,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            BASE_DIR / 'templates',
+            os.path.join(BASE_DIR, 'templates'), 
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -231,3 +236,17 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 #         "success": "btn-success"
 #     }
 # }
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+# JWT 設置
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': True,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}

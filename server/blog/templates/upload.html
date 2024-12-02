@@ -1,0 +1,594 @@
+{% extends 'base.html' %} {% block content %}
+<!DOCTYPE html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Upload Post</title>
+  <link
+    href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+    rel="stylesheet"
+  />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+</head>
+<style>
+  body {
+    font-family: "Inter", sans-serif;
+  }
+
+  /* 頁面載入動畫 */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* 表單元素載入動畫 */
+  @keyframes slideInFromLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  /* 按鈕懸停動畫 */
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  /* 上傳區域動畫 */
+  @keyframes borderPulse {
+    0% {
+      border-color: rgb(75, 85, 99);
+    }
+    50% {
+      border-color: rgb(59, 130, 246);
+    }
+    100% {
+      border-color: rgb(75, 85, 99);
+    }
+  }
+
+  /* 應用動畫到主要元素 */
+  .form-animate {
+    animation: fadeInUp 0.6s ease-out forwards;
+  }
+
+  .form-animate > * {
+    opacity: 0;
+    animation: slideInFromLeft 0.5s ease-out forwards;
+  }
+
+  /* 為表單內的每個元素設置延遲動畫 */
+  .form-animate > *:nth-child(1) {
+    animation-delay: 0.1s;
+  }
+  .form-animate > *:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+  .form-animate > *:nth-child(3) {
+    animation-delay: 0.3s;
+  }
+  .form-animate > *:nth-child(4) {
+    animation-delay: 0.4s;
+  }
+
+  /* 按鈕動畫 */
+  .btn-animate {
+    transition: all 0.3s ease;
+  }
+
+  .btn-animate:hover {
+    animation: pulse 1s infinite;
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+  }
+
+  .btn-animate:active {
+    transform: scale(0.95);
+  }
+
+  /* 上傳區域動畫 */
+  .upload-zone {
+    transition: all 0.3s ease;
+  }
+
+  .upload-zone:hover {
+    animation: borderPulse 2s infinite;
+    transform: scale(1.02);
+  }
+
+  /* 輸入框動畫 */
+  .input-animate {
+    transition: all 0.3s ease;
+  }
+
+  .input-animate:focus {
+    transform: scale(1.01);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+  }
+
+  /* 圖標動畫 */
+  .icon-animate {
+    transition: all 0.3s ease;
+  }
+
+  .icon-animate:hover {
+    transform: rotate(15deg) scale(1.1);
+    color: #60a5fa;
+  }
+
+  /* 標題漸變動畫 */
+  .heading-gradient {
+    background: linear-gradient(to right, #60a5fa, #3b82f6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 200% auto;
+    animation: gradient 3s linear infinite;
+  }
+
+  @keyframes gradient {
+    0% {
+      background-position: 0% center;
+    }
+    50% {
+      background-position: 100% center;
+    }
+    100% {
+      background-position: 0% center;
+    }
+  }
+</style>
+<body class="bg-gray-900">
+  <div class="min-h-screen py-8 px-4">
+    <div class="text-center mb-10 form-animate">
+      <h1
+        class="text-3xl font-bold mb-2 heading-gradient inline-flex items-center justify-center"
+      >
+        <svg
+          class="w-8 h-8 mr-2 icon-animate"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+          ></path>
+        </svg>
+        Create New Post
+      </h1>
+      <p class="text-gray-400">Share your thoughts and ideas with the world</p>
+    </div>
+
+    <form
+      method="post"
+      enctype="multipart/form-data"
+      class="form-animate bg-gray-800 p-8 rounded-lg shadow-lg max-w-3xl mx-auto border border-gray-700"
+      id="uploadForm"
+    >
+      {% csrf_token %}
+
+      <div class="space-y-6">
+        <div class="mb-4">
+          <label
+            for="post_type"
+            class="flex items-center text-sm font-medium text-gray-200 mb-2"
+          >
+            <svg
+              class="w-5 h-5 mr-2 text-blue-500 icon-animate"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+              />
+            </svg>
+            Post Type
+          </label>
+          <select
+            name="post_type"
+            id="post_type"
+            class="input-animate mt-1 block w-full border border-gray-600 rounded-lg shadow-sm bg-gray-700 text-white px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300"
+          >
+            {% for post_type in post_types %}
+            <option value="{{ post_type.id }}">{{ post_type.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="mb-4">
+          <label
+            for="title"
+            class="flex items-center text-sm font-medium text-gray-200 mb-2"
+            title="Enter the title of your post"
+          >
+            <svg
+              class="w-5 h-5 mr-2 text-blue-500 icon-animate"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            Title
+          </label>
+          <input
+            type="text"
+            name="title"
+            id="title"
+            class="input-animate mt-1 block w-full border border-gray-600 rounded-lg shadow-sm bg-gray-700 text-white px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300"
+            placeholder="Enter post title"
+          />
+        </div>
+
+        <div class="mb-4">
+          <label
+            for="content"
+            class="flex items-center text-sm font-medium text-gray-200 mb-2"
+          >
+            <svg
+              class="w-5 h-5 mr-2 text-blue-500 icon-animate"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+              />
+            </svg>
+            Content
+          </label>
+          <textarea
+            name="content"
+            id="content"
+            rows="6"
+            class="input-animate mt-1 block w-full border border-gray-600 rounded-lg shadow-sm bg-gray-700 text-white px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300"
+          ></textarea>
+        </div>
+
+        <div class="mb-4">
+          <label
+            for="images"
+            class="flex items-center text-sm font-medium text-gray-200 mb-2"
+          >
+            <svg
+              class="w-5 h-5 mr-2 text-blue-500 icon-animate"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+              />
+            </svg>
+            Upload Images
+          </label>
+          <div
+            class="upload-zone mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-600 border-dashed rounded-lg hover:border-blue-500 transition-all duration-300"
+          >
+            <div class="space-y-1 text-center">
+              <svg
+                class="mx-auto h-12 w-12 text-gray-400"
+                stroke="currentColor"
+                fill="none"
+                viewBox="0 0 48 48"
+              >
+                <path
+                  d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              <div class="flex text-sm text-gray-400">
+                <label
+                  for="images"
+                  class="relative cursor-pointer rounded-md font-medium text-blue-400 hover:text-blue-300 focus-within:outline-none"
+                >
+                  <span>Upload files</span>
+                  <input
+                    type="file"
+                    name="images"
+                    id="images"
+                    multiple
+                    class="sr-only"
+                    accept="image/*"
+                  />
+                </label>
+                <p class="pl-1">or drag and drop</p>
+              </div>
+              <p class="text-xs text-gray-400">PNG, JPG, GIF</p>
+              <div
+                id="imagePreviewContainer"
+                class="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4"
+              >
+                <!-- Preview images will be inserted here -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end mt-8">
+          <button
+            type="button"
+            onclick="submitForm()"
+            class="btn-animate bg-blue-600 text-white px-6 py-3 rounded-lg shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition duration-200 font-medium inline-flex items-center"
+          >
+            <svg
+              class="w-5 h-5 mr-2 icon-animate"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
+              ></path>
+            </svg>
+            Create Post
+          </button>
+        </div>
+      </div>
+    </form>
+
+    <h2 class="text-2xl font-bold mt-12 mb-6 text-center heading-gradient">
+      <svg
+        class="w-6 h-6 inline-block mr-2"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+        ></path>
+      </svg>
+      Add New Items
+    </h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto px-4">
+      <div
+        class="bg-gray-800 p-6 rounded-lg shadow-lg border border-gray-700 hover:border-blue-500 transition-all duration-300"
+      >
+        <form method="post" class="space-y-4">
+          {% csrf_token %}
+          <input type="hidden" name="add_post_type" value="1" />
+          <div>
+            <label
+              for="post_type_name"
+              class="flex items-center text-sm font-medium text-gray-200 mb-2"
+            >
+              <svg
+                class="w-5 h-5 mr-2 text-blue-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"
+                ></path>
+              </svg>
+              Post Type Name
+            </label>
+            <input
+              type="text"
+              name="post_type_name"
+              id="post_type_name"
+              class="mt-1 w-full border border-gray-600 rounded-lg shadow-sm bg-gray-700 text-white px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
+              placeholder="Enter post type name"
+            />
+          </div>
+          <button
+            type="submit"
+            class="w-full bg-blue-600 text-white px-4 py-2.5 rounded-lg text-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition duration-200 font-medium"
+          >
+            Add Post Type
+          </button>
+          {% if post_type_error %}
+          <p class="text-red-400 text-xs mt-2">{{ post_type_error }}</p>
+          {% endif %}
+        </form>
+      </div>
+
+      <div
+        class="bg-gray-800 p-6 rounded-lg shadow-lg border border-gray-700 hover:border-blue-500 transition-all duration-300"
+      >
+        <form method="post" class="space-y-4">
+          {% csrf_token %}
+          <input type="hidden" name="add_country" value="1" />
+          <div>
+            <label
+              for="country_name"
+              class="flex items-center text-sm font-medium text-gray-200 mb-2"
+            >
+              <svg
+                class="w-5 h-5 mr-2 text-blue-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M3 4a1 1 0 011-1h16a1 1 0 011 1v16a1 1 0 01-1 1H4a1 1 0 01-1-1V4z"
+                ></path>
+              </svg>
+              Country Name
+            </label>
+            <input
+              type="text"
+              name="country_name"
+              id="country_name"
+              class="mt-1 w-full border border-gray-600 rounded-lg shadow-sm bg-gray-700 text-white px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
+              placeholder="Enter country name"
+            />
+          </div>
+          <button
+            type="submit"
+            class="w-full bg-blue-600 text-white px-4 py-2.5 rounded-lg text-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition duration-200 font-medium"
+          >
+            Add Country
+          </button>
+          {% if country_error %}
+          <p class="text-red-400 text-xs mt-2">{{ country_error }}</p>
+          {% endif %}
+        </form>
+      </div>
+
+      <div
+        class="bg-gray-800 p-6 rounded-lg shadow-lg border border-gray-700 hover:border-blue-500 transition-all duration-300"
+      >
+        <form method="post" class="space-y-4">
+          {% csrf_token %}
+          <input type="hidden" name="add_author" value="1" />
+          <div>
+            <label
+              for="author_name"
+              class="flex items-center text-sm font-medium text-gray-200 mb-2"
+            >
+              <svg
+                class="w-5 h-5 mr-2 text-blue-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 14l9-5-9-5-9 5 9 5zm0 7v-6m0 0l-9-5m9 5l9-5"
+                ></path>
+              </svg>
+              Author Name
+            </label>
+            <input
+              type="text"
+              name="author_name"
+              id="author_name"
+              class="mt-1 w-full border border-gray-600 rounded-lg shadow-sm bg-gray-700 text-white px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
+              placeholder="Enter author name"
+            />
+          </div>
+          <button
+            type="submit"
+            class="w-full bg-blue-600 text-white px-4 py-2.5 rounded-lg text-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition duration-200 font-medium"
+          >
+            Add Author
+          </button>
+          {% if author_error %}
+          <p class="text-red-400 text-xs mt-2">{{ author_error }}</p>
+          {% endif %}
+        </form>
+      </div>
+    </div>
+  </div>
+</body>
+
+<script>
+  // Add this function to handle image preview
+  document
+    .getElementById("images")
+    .addEventListener("change", function (event) {
+      const container = document.getElementById("imagePreviewContainer");
+      container.innerHTML = ""; // Clear existing previews
+
+      Array.from(event.target.files).forEach((file) => {
+        if (file.type.startsWith("image/")) {
+          const reader = new FileReader();
+          const preview = document.createElement("div");
+          preview.className = "relative group";
+
+          reader.onload = function (e) {
+            preview.innerHTML = `
+            <img src="${e.target.result}" 
+                 class="w-full h-32 object-cover rounded-lg" 
+                 alt="preview"/>
+            <div class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-lg flex items-center justify-center">
+              <button type="button" 
+                      class="text-white hover:text-red-500 transition-colors duration-200"
+                      onclick="this.closest('.relative').remove();">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+          `;
+          };
+
+          reader.readAsDataURL(file);
+          container.appendChild(preview);
+        }
+      });
+    });
+
+  function submitForm() {
+    const form = document.getElementById("uploadForm");
+    const formData = new FormData(form);
+
+    fetch("/api/create-post/", {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]")
+          .value,
+      },
+      body: formData,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.message) {
+        } else {
+          alert(data.error || "發生錯誤");
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        alert("發生錯誤，請稍後再試");
+      });
+  }
+</script>
+
+{% endblock %}

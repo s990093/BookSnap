@@ -18,20 +18,13 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from rest_framework.routers import DefaultRouter
-from blog.views import (
-    PostViewSet, PostTypeViewSet, PostImageViewSet,
-    EventViewSet, TemplateImageViewSet
-)
 
-router = DefaultRouter()
-router.register(r'posts', PostViewSet)
-router.register(r'post-types', PostTypeViewSet)
-router.register(r'post-images', PostImageViewSet)
-router.register(r'events', EventViewSet)
-router.register(r'template-images', TemplateImageViewSet)
+from blog.views import upload_file, post_list
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include(router.urls)),
+
+    path('api/', include("blog.urls")),
+    path('upload/', upload_file, name='upload_file'),
+    path("post-list/", post_list, name="post-list"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
