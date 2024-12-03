@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+<<<<<<< HEAD
 from rest_framework.routers import DefaultRouter
 from blog.views import (
     PostViewSet, PostTypeViewSet, PostImageViewSet,
@@ -43,6 +44,14 @@ from blog.views import upload_file, post_list, dashboard, create_reel, reel_list
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+=======
+from django.contrib.auth import views as auth_views
+
+from blog.views import upload_file, post_list, dashboard
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+>>>>>>> 419ef2a (blog)
     path('api/', include("blog.urls")),
     path('upload/', upload_file, name='upload_file'),
     path('reel/create/', create_reel, name='create_reel'),
@@ -57,5 +66,8 @@ urlpatterns = [
         next_page='login'
     ), name='logout'),
     path('', dashboard, name='dashboard'),
+<<<<<<< HEAD
 >>>>>>> 675d26b (reel model)
+=======
+>>>>>>> 419ef2a (blog)
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

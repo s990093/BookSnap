@@ -1,0 +1,140 @@
+{% extends 'base.html' %} {% block content %}
+<!-- ... 保留相同的 style 區塊 ... -->
+
+<body class="bg-gray-900">
+  <div class="min-h-screen py-8 px-4">
+    <div class="text-center mb-10 form-animate">
+      <h1 class="text-3xl font-bold mb-2 heading-gradient inline-flex items-center justify-center">
+        <svg class="w-8 h-8 mr-2 icon-animate" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+        </svg>
+        Edit Post
+      </h1>
+      <p class="text-gray-400">Update your post content</p>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" 
+          class="form-animate bg-gray-800 p-8 rounded-lg shadow-lg max-w-3xl mx-auto border border-gray-700" 
+          id="editForm">
+      {% csrf_token %}
+      
+      <!-- 與 upload.html 相同的表單結構，但加入 value 屬性來顯示現有數據 -->
+      <div class="space-y-6">
+        <div class="mb-4">
+          <label for="post_type" class="flex items-center text-sm font-medium text-gray-200 mb-2">
+            <!-- ... 相同的 label 內容 ... -->
+          </label>
+          <select name="post_type" id="post_type" class="input-animate mt-1 block w-full ...">
+            {% for post_type in post_types %}
+            <option value="{{ post_type.id }}" {% if post_type.id == post.post_type.id %}selected{% endif %}>
+              {{ post_type.name }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- 其他選擇欄位使用相同模式 -->
+        
+        <div class="mb-4">
+          <label for="title" class="flex items-center text-sm font-medium text-gray-200 mb-2">
+            <!-- ... -->
+          </label>
+          <input type="text" name="title" id="title" 
+                 value="{{ post.title }}"
+                 class="input-animate mt-1 block w-full ..." />
+        </div>
+
+        <div class="mb-4">
+          <label for="content" class="flex items-center text-sm font-medium text-gray-200 mb-2">
+            <!-- ... -->
+          </label>
+          <textarea name="content" id="content" rows="6" 
+                    class="input-animate mt-1 block w-full ...">{{ post.content }}</textarea>
+        </div>
+
+        <!-- 圖片預覽區域 -->
+        <div class="mb-4">
+          <!-- ... 相同的上傳區域 ... -->
+          <div id="imagePreviewContainer" class="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
+            {% for image in post.images.all %}
+            <div class="relative group">
+              <img src="{{ image.url }}" class="w-full h-32 object-cover rounded-lg" alt="existing image"/>
+              <div class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-lg flex items-center justify-center">
+                <button type="button" class="text-white hover:text-red-500 transition-colors duration-200"
+                        onclick="deleteImage({{ image.id }}, this)">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end mt-8">
+          <button type="button" onclick="submitEditForm()"
+                  class="btn-animate bg-blue-600 text-white px-6 py-3 rounded-lg ...">
+            <svg class="w-5 h-5 mr-2 icon-animate" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            Update Post
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</body>
+
+<script>
+  // ... 保留原有的圖片預覽功能 ...
+
+  function deleteImage(imageId, element) {
+    if (confirm('Are you sure you want to delete this image?')) {
+      fetch(`/api/delete-image/${imageId}/`, {
+        method: 'DELETE',
+        headers: {
+          'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        },
+      })
+      .then(response => {
+        if (response.ok) {
+          element.closest('.relative').remove();
+        } else {
+          alert('Failed to delete image');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Error deleting image');
+      });
+    }
+  }
+
+  function submitEditForm() {
+    const form = document.getElementById('editForm');
+    const formData = new FormData(form);
+    
+    fetch(`/api/edit-post/{{ post.id }}/`, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+      },
+      body: formData,
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        window.location.href = `/post/${data.post_id}/`;  // 重定向到文章頁面
+      } else {
+        alert(data.error || '更新失敗');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('發生錯誤，請稍後再試');
+    });
+  }
+</script>
+
+{% endblock %} 

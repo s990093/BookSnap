@@ -1,0 +1,328 @@
+{% extends 'base.html' %} {% block content %}
+<!DOCTYPE html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Post List</title>
+    <!-- 替換 Bootstrap 為 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {},
+        },
+      };
+    </script>
+  </head>
+  <body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
+    <div class="container mx-auto px-4 py-8">
+      <h1 class="text-3xl font-bold mb-6 dark:text-white">All Posts</h1>
+
+      <!-- 更新操作欄樣式 -->
+      <div class="flex gap-4 mb-6">
+        <button
+          id="downloadSelected"
+          class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 ease-in-out transform hover:scale-105 active:scale-95"
+          disabled
+        >
+          Download Selected Posts
+        </button>
+
+        <select
+          id="userFilter"
+          class="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 transition-colors duration-200"
+        >
+          <option value="">All Users</option>
+          {% for user in users %}
+          <option value="{{ user.id }}">{{ user.username }}</option>
+          {% endfor %}
+        </select>
+
+        <select
+          id="typeFilter"
+          class="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 transition-colors duration-200"
+        >
+          <option value="">All Types</option>
+          {% for type in post_types %}
+          <option value="{{ type.name }}">{{ type.name }}</option>
+          {% endfor %}
+        </select>
+
+        <select
+          id="countryFilter"
+          class="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 transition-colors duration-200"
+        >
+          <option value="">All Countries</option>
+          {% for country in countries %}
+          <option value="{{ country.name }}">{{ country.name }}</option>
+          {% endfor %}
+        </select>
+
+        <select
+          id="sortBy"
+          class="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 transition-colors duration-200"
+        >
+          <option value="">Sort By</option>
+          <option value="clear">Clear Sort</option>
+          <option value="title">Title</option>
+          <option value="author">Author</option>
+          <option value="date">Date</option>
+        </select>
+      </div>
+
+      <!-- 更新表格部分 -->
+      <div
+        class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700"
+      >
+        <table class="w-full border-collapse">
+          <thead class="bg-gray-100 dark:bg-gray-800">
+            <tr>
+              <th class="p-4 text-left">
+                <input
+                  type="checkbox"
+                  id="selectAll"
+                  class="rounded border-gray-300 dark:border-gray-600 text-blue-500 focus:ring-blue-500 dark:bg-gray-700"
+                />
+              </th>
+              <th
+                class="p-4 text-left font-semibold text-gray-700 dark:text-gray-200"
+              >
+                Image
+              </th>
+              <th
+                class="p-4 text-left font-semibold text-gray-700 dark:text-gray-200"
+              >
+                Title
+              </th>
+              <th
+                class="p-4 text-left font-semibold text-gray-700 dark:text-gray-200"
+              >
+                Type
+              </th>
+              <th
+                class="p-4 text-left font-semibold text-gray-700 dark:text-gray-200 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200"
+              >
+                Author
+              </th>
+              <th
+                class="p-4 text-left font-semibold text-gray-700 dark:text-gray-200"
+              >
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+            {% for post in posts %}
+            <tr
+              class="hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-300 ease-in-out transform hover:scale-[1.01] hover:shadow-lg dark:hover:shadow-gray-800"
+            >
+              <td class="p-4">
+                <input
+                  type="checkbox"
+                  class="post-checkbox rounded border-gray-300 dark:border-gray-600 text-blue-500 dark:bg-gray-700"
+                  value="{{ post.id }}"
+                />
+              </td>
+              <td class="p-4">
+                {% if post.images.all %}
+                <img
+                  src="{{ post.images.first.image.url }}"
+                  alt="{{ post.title }}"
+                  class="w-20 h-20 object-cover rounded-lg shadow-sm"
+                />
+                {% else %}
+                <div
+                  class="w-20 h-20 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center"
+                >
+                  <span class="text-gray-400 dark:text-gray-500">No image</span>
+                </div>
+                {% endif %}
+              </td>
+              <td class="p-4">{{ post.title }}</td>
+              <td class="p-4">{{ post.post_type.name }}</td>
+              <td class="p-4">{{ post.author.name }}</td>
+              <td class="p-4">
+                <a
+                  href="{% url 'download_post' post.id %}"
+                  class="inline-flex items-center px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all duration-300 ease-in-out transform hover:scale-105 active:scale-95"
+                >
+                  Download
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 在表格後面添加 -->
+      <div class="mt-6 text-center">
+        {% if has_more %}
+        <button
+          id="loadMore"
+          class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-all duration-300 ease-in-out transform hover:scale-105 active:scale-95"
+        >
+          Load More
+        </button>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- JavaScript 保持不變 -->
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const selectAllCheckbox = document.getElementById("selectAll");
+        const postCheckboxes = document.querySelectorAll(".post-checkbox");
+        const downloadButton = document.getElementById("downloadSelected");
+
+        // 全选/取消全选
+        selectAllCheckbox.addEventListener("change", function () {
+          postCheckboxes.forEach((checkbox) => {
+            checkbox.checked = this.checked;
+          });
+          updateDownloadButton();
+        });
+
+        // 单个复选框变化时更新下载按钮状态
+        postCheckboxes.forEach((checkbox) => {
+          checkbox.addEventListener("change", updateDownloadButton);
+        });
+
+        // 更新下载按钮状态
+        function updateDownloadButton() {
+          const selectedPosts = Array.from(postCheckboxes).filter(
+            (cb) => cb.checked
+          );
+          downloadButton.disabled = selectedPosts.length === 0;
+        }
+
+        // 下载选中的帖子
+        downloadButton.addEventListener("click", function () {
+          const selectedIds = Array.from(postCheckboxes)
+            .filter((cb) => cb.checked)
+            .map((cb) => cb.value);
+
+          if (selectedIds.length > 0) {
+            window.location.href = `/download-posts/?ids=${selectedIds.join(
+              ","
+            )}`;
+          }
+        });
+
+        // 更新排序功能
+        const sortSelect = document.getElementById("sortBy");
+        sortSelect.addEventListener("change", function () {
+          const sortBy = this.value;
+          const currentUrl = new URL(window.location.href);
+
+          if (sortBy === "clear") {
+            // 清除排序參數並重新載入頁面
+            currentUrl.searchParams.delete("sort");
+            window.location.href = "/post-list/";
+            return;
+          }
+
+          if (sortBy) {
+            currentUrl.searchParams.set("sort", sortBy);
+            window.location.href = currentUrl.toString();
+          }
+        });
+
+        // 設置當前排序選項
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentSort = urlParams.get("sort");
+        if (currentSort && currentSort !== "clear") {
+          sortSelect.value = currentSort;
+        } else {
+          sortSelect.value = "";
+        }
+
+        // 添加類型過濾功能
+        const typeFilter = document.getElementById("typeFilter");
+        typeFilter.addEventListener("change", function () {
+          const selectedType = this.value;
+          const currentUrl = new URL(window.location.href);
+
+          if (selectedType) {
+            currentUrl.searchParams.set("type", selectedType);
+          } else {
+            currentUrl.searchParams.delete("type");
+          }
+
+          window.location.href = currentUrl.toString();
+        });
+
+        // 設置當前選中的類型
+        const currentType = urlParams.get("type");
+        if (currentType) {
+          typeFilter.value = currentType;
+        }
+
+        // 添加國家過濾功能
+        const countryFilter = document.getElementById("countryFilter");
+        countryFilter.addEventListener("change", function () {
+          const selectedCountry = this.value;
+          const currentUrl = new URL(window.location.href);
+
+          if (selectedCountry) {
+            currentUrl.searchParams.set("country", selectedCountry);
+          } else {
+            currentUrl.searchParams.delete("country");
+          }
+
+          window.location.href = currentUrl.toString();
+        });
+
+        // 設置當前選中的國家
+        const currentCountry = urlParams.get("country");
+        if (currentCountry) {
+          countryFilter.value = currentCountry;
+        }
+
+        // 添加使用者過濾功能
+        const userFilter = document.getElementById("userFilter");
+        userFilter.addEventListener("change", function () {
+          const selectedUser = this.value;
+          const currentUrl = new URL(window.location.href);
+
+          if (selectedUser) {
+            currentUrl.searchParams.set("user", selectedUser);
+          } else {
+            currentUrl.searchParams.delete("user");
+          }
+
+          window.location.href = currentUrl.toString();
+        });
+
+        // 設置當前選中的使用者
+        const currentUser = urlParams.get("user");
+        if (currentUser) {
+          userFilter.value = currentUser;
+        }
+
+        // 添加 Load More 功能
+        const loadMoreBtn = document.getElementById("loadMore");
+        if (loadMoreBtn) {
+          loadMoreBtn.addEventListener("click", function () {
+            const currentUrl = new URL(window.location.href);
+            const currentPage = parseInt(
+              currentUrl.searchParams.get("page") || "1"
+            );
+
+            currentUrl.searchParams.set("page", currentPage + 1);
+            window.location.href = currentUrl.toString();
+          });
+        }
+
+        // 保持當前頁面的過濾和排序狀態
+        const currentPage = urlParams.get("page");
+        if (currentPage) {
+          // 滾動到頁面底部
+          window.scrollTo(0, document.body.scrollHeight);
+        }
+      });
+    </script>
+  </body>
+</html>
+{% endblock %}

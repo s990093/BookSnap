@@ -54,11 +54,19 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'drf_yasg',
+<<<<<<< HEAD
+=======
+    'rest_framework_simplejwt',
+    'crispy_forms',
+    'crispy_tailwind',
+    'widget_tweaks',
+>>>>>>> 419ef2a (blog)
     # app
     'blog',
 ]
 
-
+CRISPY_ALLOWED_TEMPLATE_PACKS = "tailwind"
+CRISPY_TEMPLATE_PACK = "tailwind"
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -227,4 +235,27 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 #         "danger": "btn-danger",
 #         "success": "btn-success"
 #     }
+<<<<<<< HEAD
 # }
+=======
+# }
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+# JWT 設置
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': True,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
+
+
+LOGIN_URL = '/login/' 
+LOGIN_REDIRECT_URL = '/'  
+LOGOUT_REDIRECT_URL = '/login/'
+>>>>>>> 419ef2a (blog)
