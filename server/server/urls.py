@@ -25,6 +25,7 @@ from blog.views import (
 )
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 router = DefaultRouter()
 router.register(r'posts', PostViewSet)
 router.register(r'post-types', PostTypeViewSet)
@@ -36,6 +37,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
 =======
+=======
+>>>>>>> 675d26b (reel model)
 from blog.views import upload_file, post_list, dashboard, create_reel, reel_list
 
 urlpatterns = [

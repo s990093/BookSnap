@@ -78,5 +78,9 @@ class Reel(models.Model):
     class Meta:
         verbose_name = "Reel"
         verbose_name_plural = "Reels"
+<<<<<<< HEAD
+        ordering = ['-created_at']
+>>>>>>> 675d26b (reel model)
+=======
         ordering = ['-created_at']
 >>>>>>> 675d26b (reel model)

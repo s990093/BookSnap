@@ -367,5 +367,9 @@ def reel_list(request):
         'current_page': page,
     }
     
+<<<<<<< HEAD
+    return render(request, 'reel_list.html', context)
+>>>>>>> 675d26b (reel model)
+=======
     return render(request, 'reel_list.html', context)
 >>>>>>> 675d26b (reel model)

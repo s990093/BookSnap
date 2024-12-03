@@ -1,8 +1,11 @@
 from rest_framework import serializers
 <<<<<<< HEAD
+<<<<<<< HEAD
 from .models import PostType, Post, PostImage, Event, TemplateImage
 from django.utils import timezone
 =======
+=======
+>>>>>>> 675d26b (reel model)
 from .models import Country, Author, PostType, Post, Image, Reel
 
 class CountrySerializer(serializers.ModelSerializer):
@@ -109,5 +112,9 @@ class PostSerializer(serializers.ModelSerializer):
 class ReelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Reel
+<<<<<<< HEAD
+        fields = ['id', 'title', 'video', 'content', 'user', 'created_at']
+>>>>>>> 675d26b (reel model)
+=======
         fields = ['id', 'title', 'video', 'content', 'user', 'created_at']
 >>>>>>> 675d26b (reel model)
