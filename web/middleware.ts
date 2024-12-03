@@ -17,7 +17,7 @@ export const config = {
     matcher: [
         "/posts/:path*",
         "/design-templates/:path*",
-        "/events/:path*",
+        // "/events/:path*", 
         "/fonts/:path*",
         "/instagram-posts/:path*",
         "/post-types/:path*",

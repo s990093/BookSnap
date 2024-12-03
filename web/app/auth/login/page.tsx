@@ -5,6 +5,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 
+import Link from "next/link";
 export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -47,31 +48,43 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="fixed h-screen w-screen">
-      <h1>Login</h1>
-      <form onSubmit={handleSubmit} >
-        <div>
-          <label>Username</label>
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-            className="bg-black"
-          />
+    <div className="fixed h-screen w-screen justify-center flex items-center">
+      <div className="fixed h-5/6 w-2/6 bg-gray-400 border rounded-xl flex justify-center items-center">
+        <div className="flex flex-col space-y-6 justify-center items-center">
+          <form onSubmit={handleSubmit} className="flex flex-col space-y-2 ">
+            <div>
+              <input 
+                type="text"
+                value = {username}
+                placeholder="Username"
+                onChange={(e)=> setUsername(e.target.value)}
+                required
+                className = "text-black rounded-md">     
+              </input>
+            </div>
+            <div>
+              <input 
+                type = "text"
+                value = {password}
+                placeholder="Password"
+                required
+                onChange={(e) =>setPassword(e.target.value)}
+                className="text-black rounded-md"
+              >
+              </input>
+            </div>
+          </form>
+          <button className="rounded-lg bg-blue-400 w-4/6" type="submit" >
+                login
+          </button>
+          <div className="flex space-x-2 flex-row justify-center items-center">
+            <text className="text-black text-xs">Not yet have account</text>
+            <div>
+              <Link href="/auth/register"><text className="text-sm text-blue-600">register</text></Link>
+            </div>
+          </div>
         </div>
-        <div>
-          <label>Password</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            className="bg-black"
-          />
-        </div>
-        <button type="submit">Login</button>
-      </form>
+      </div>
       {error && <p style={{ color: "red" }}>{error}</p>}
     </div>
   );
