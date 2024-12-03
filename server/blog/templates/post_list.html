@@ -30,6 +30,16 @@
         </button>
 
         <select
+          id="userFilter"
+          class="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 transition-colors duration-200"
+        >
+          <option value="">All Users</option>
+          {% for user in users %}
+          <option value="{{ user.id }}">{{ user.username }}</option>
+          {% endfor %}
+        </select>
+
+        <select
           id="typeFilter"
           class="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 transition-colors duration-200"
         >
@@ -131,7 +141,7 @@
               </td>
               <td class="p-4">{{ post.title }}</td>
               <td class="p-4">{{ post.post_type.name }}</td>
-              <td class="p-4">{{ post.author.username }}</td>
+              <td class="p-4">{{ post.author.name }}</td>
               <td class="p-4">
                 <a
                   href="{% url 'download_post' post.id %}"
@@ -268,6 +278,27 @@
         const currentCountry = urlParams.get("country");
         if (currentCountry) {
           countryFilter.value = currentCountry;
+        }
+
+        // 添加使用者過濾功能
+        const userFilter = document.getElementById("userFilter");
+        userFilter.addEventListener("change", function () {
+          const selectedUser = this.value;
+          const currentUrl = new URL(window.location.href);
+
+          if (selectedUser) {
+            currentUrl.searchParams.set("user", selectedUser);
+          } else {
+            currentUrl.searchParams.delete("user");
+          }
+
+          window.location.href = currentUrl.toString();
+        });
+
+        // 設置當前選中的使用者
+        const currentUser = urlParams.get("user");
+        if (currentUser) {
+          userFilter.value = currentUser;
         }
 
         // 添加 Load More 功能

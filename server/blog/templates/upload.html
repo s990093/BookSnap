@@ -1,18 +1,5 @@
 {% extends 'base.html' %} {% block content %}
 <!DOCTYPE html>
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Upload Post</title>
-  <link
-    href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
-    rel="stylesheet"
-  />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-    rel="stylesheet"
-  />
-</head>
 <style>
   body {
     font-family: "Inter", sans-serif;
@@ -218,6 +205,69 @@
           >
             {% for post_type in post_types %}
             <option value="{{ post_type.id }}">{{ post_type.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <!-- Country Select -->
+        <div class="mb-4">
+          <label
+            for="country"
+            class="flex items-center text-sm font-medium text-gray-200 mb-2"
+          >
+            <svg
+              class="w-5 h-5 mr-2 text-blue-500 icon-animate"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064"
+              />
+            </svg>
+            Country
+          </label>
+          <select
+            name="country"
+            id="country"
+            class="input-animate mt-1 block w-full border border-gray-600 rounded-lg shadow-sm bg-gray-700 text-white px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300"
+          >
+            {% for country in countries %}
+            <option value="{{ country.id }}">{{ country.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Author Select -->
+        <div class="mb-4">
+          <label
+            for="author"
+            class="flex items-center text-sm font-medium text-gray-200 mb-2"
+          >
+            <svg
+              class="w-5 h-5 mr-2 text-blue-500 icon-animate"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+              />
+            </svg>
+            Author
+          </label>
+          <select
+            name="author"
+            id="author"
+            class="input-animate mt-1 block w-full border border-gray-600 rounded-lg shadow-sm bg-gray-700 text-white px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300"
+          >
+            {% for author in authors %}
+            <option value="{{ author.id }}">{{ author.name }}</option>
             {% endfor %}
           </select>
         </div>

@@ -1,11 +1,11 @@
 from rest_framework import viewsets
 from .models import Country, Author, PostType, Post, Image
 from .serializers import CountrySerializer, AuthorSerializer, PostTypeSerializer, PostSerializer, ImageSerializer
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 from django.http import HttpResponse
 from django.contrib import messages 
-from rest_framework.decorators import api_view, parser_classes
+from rest_framework.decorators import api_view, parser_classes, authentication_classes
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework import status
@@ -14,27 +14,35 @@ import os
 import zipfile
 from django.http import HttpResponse
 from io import BytesIO, StringIO
+from django.db.models import Count
+from django.db.models.functions import TruncMonth
+from datetime import datetime, timedelta
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from django.contrib.auth.models import User
+from django.utils import timezone
 
 
-class CountryViewSet(viewsets.ModelViewSet):
+class CountryViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
     queryset = Country.objects.all()
     serializer_class = CountrySerializer
     # permission_classes = [IsAuthenticatedOrReadOnly]
 
 
-class AuthorViewSet(viewsets.ModelViewSet):
+class AuthorViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
     # permission_classes = [IsAuthenticatedOrReadOnly]
 
 
-class PostTypeViewSet(viewsets.ModelViewSet):
+class PostTypeViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
     queryset = PostType.objects.all()
     serializer_class = PostTypeSerializer
     # permission_classes = [IsAuthenticatedOrReadOnly]
 
 
-class PostViewSet(viewsets.ModelViewSet):
+class PostViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
     # permission_classes = [IsAuthenticatedOrReadOnly]
@@ -43,17 +51,23 @@ class PostViewSet(viewsets.ModelViewSet):
         serializer.save(user=self.request.user)
 
 
-class ImageViewSet(viewsets.ModelViewSet):
+class ImageViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
     queryset = Image.objects.all()
     serializer_class = ImageSerializer
     # permission_classes = [IsAuthenticatedOrReadOnly]
 
+@login_required
 def upload_file(request):
+    # 檢查用戶是否已登入
+    if not request.user.is_authenticated:
+        return redirect('login')
+        
     if request.method == 'POST':
         context = {
             'post_types': PostType.objects.all(),
             'countries': Country.objects.all(),
             'authors': Author.objects.all(),
+            'user': request.user,
         }
 
         if 'add_post_type' in request.POST:
@@ -101,14 +115,23 @@ def upload_file(request):
         'post_types': PostType.objects.all(),
         'countries': Country.objects.all(),
         'authors': Author.objects.all(),
+        'user': request.user,
     }
     return render(request, 'upload.html', context)
 
 
+@login_required
 @api_view(['POST'])
 @parser_classes([MultiPartParser, FormParser])
+@authentication_classes([SessionAuthentication, BasicAuthentication])
 def api_create_post(request):
     try:
+        # 確保用戶已登入
+        if not request.user.is_authenticated:
+            return Response({
+                'error': 'Authentication required'
+            }, status=status.HTTP_401_UNAUTHORIZED)
+            
         # 獲取表單數據
         post_type_id = request.data.get('post_type')
         country_id = request.data.get('country')
@@ -119,7 +142,7 @@ def api_create_post(request):
         # 驗證必要欄位
         if not all([post_type_id, content, title]):
             return Response({
-                'error': '請填寫所有必要欄位'
+                'error': 'Please fill in all required fields'
             }, status=status.HTTP_400_BAD_REQUEST)
 
         # 檢查標題是否重複
@@ -135,7 +158,7 @@ def api_create_post(request):
             author_id=author_id if author_id else None,
             content=content,
             title=title,
-            user=request.user if request.user.is_authenticated else None
+            user=request.user
         )
         post.save()
 
@@ -165,6 +188,7 @@ def api_create_post(request):
             'error': f'發生錯誤：{str(e)}'
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+@login_required
 def post_list(request):
     # Get filter parameters from URL
     post_type = request.GET.get('type')
@@ -194,6 +218,7 @@ def post_list(request):
     
     context = {
         'posts': posts,
+        'users': User.objects.all(), 
         'post_types': PostType.objects.all(),
         'countries': Country.objects.all(),
         'has_more': total_posts > end,
@@ -202,6 +227,7 @@ def post_list(request):
     
     return render(request, 'post_list.html', context)
 
+@login_required
 def download_post(request, post_id):
     try:
         post = Post.objects.get(id=post_id)
@@ -235,11 +261,12 @@ def download_post(request, post_id):
     except Post.DoesNotExist:
         return HttpResponse('Post not found', status=404)
 
+@login_required
 def download_posts(request):
     post_ids = request.GET.get('ids', '').split(',')
     
     try:
-        # 创建一个临时的ZIP文件
+        # 创建个临时的ZIP文件
         zip_buffer = BytesIO()
         with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
             for post_id in post_ids:
@@ -247,17 +274,11 @@ def download_posts(request):
                     post = Post.objects.get(id=post_id)
                     
                     # 为每个帖子创建一个文件夹
-                    folder_name = f'post_{post_id}'
+                    folder_name = f'{post.title}'
                     
                     # 添加文本内容
-                    content_file = StringIO()
-                    content_file.write(f"Post Type: {post.post_type.name}\n")
-                    content_file.write(f"Content: {post.content}\n")
-                    if post.country:
-                        content_file.write(f"Country: {post.country.name}\n")
-                    if post.author:
-                        content_file.write(f"Author: {post.author.name}\n")
-                    
+                    content_file = StringIO() 
+                    content_file.write(f"{post.content}")
                     zip_file.writestr(f'{folder_name}/content.txt', content_file.getvalue())
                     
                     # 添加图片
@@ -277,3 +298,72 @@ def download_posts(request):
         
     except Exception as e:
         return HttpResponse(f'Error: {str(e)}', status=500)
+
+@login_required
+def dashboard(request):
+    # 獲取基礎數據
+    total_posts = Post.objects.count()
+    total_authors = Author.objects.count()
+    total_countries = Country.objects.count()
+    
+    # 獲取最近一個月的數據
+    last_month = timezone.now() - timedelta(days=30)
+    recent_posts = Post.objects.filter(created_at__gte=last_month).count()
+    
+    # 按文章類型統計
+    posts_by_type = Post.objects.values('post_type__name')\
+        .annotate(count=Count('id'))\
+        .order_by('-count')
+    
+    # 按國家統計
+    posts_by_country = Post.objects.values('country__name')\
+        .annotate(count=Count('id'))\
+        .order_by('-count')
+    
+    # 按月份統計文章數量
+    posts_by_month = Post.objects.annotate(
+        month=TruncMonth('created_at')
+    ).values('month').annotate(
+        count=Count('id')
+    ).order_by('-month')[:12]  # 最近12個月
+    
+    # 新增：獲取最近發布的文章
+    recent_posts_list = Post.objects.select_related(
+        'post_type', 'country', 'author', 'user'
+    ).order_by('-created_at')[:10]
+    
+    # 新增：每個用戶的發文統計
+    posts_by_user = Post.objects.values('user__username')\
+        .annotate(count=Count('id'))\
+        .order_by('-count')[:10]
+    
+    # 新增：含圖片最多的文章
+    posts_with_most_images = Post.objects.annotate(
+        image_count=Count('images')
+    ).order_by('-image_count')[:5]
+    
+    # 新增：本週發文統計
+    this_week = timezone.now() - timedelta(days=7)
+    posts_this_week = Post.objects.filter(created_at__gte=this_week).count()
+    
+    # 最活躍的作者
+    top_authors = Author.objects.annotate(
+        post_count=Count('post')
+    ).order_by('-post_count')[:5]
+    
+    context = {
+        'total_posts': total_posts,
+        'total_authors': total_authors,
+        'total_countries': total_countries,
+        'recent_posts': recent_posts,
+        'posts_by_type': posts_by_type,
+        'posts_by_country': posts_by_country,
+        'posts_by_month': posts_by_month,
+        'top_authors': top_authors,
+        'recent_posts_list': recent_posts_list,
+        'posts_by_user': posts_by_user,
+        'posts_with_most_images': posts_with_most_images,
+        'posts_this_week': posts_this_week,
+    }
+    
+    return render(request, 'dashboard.html', context)
