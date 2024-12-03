@@ -4,9 +4,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { PhotoIcon } from "@heroicons/react/24/solid";
-
+import { useState, useRef,useEffect } from "react";
+import { UserMenu } from "./NavbarModal/Menu";
 const navItems = [
-  { href: "/", label: "Dashboard" },
+  { href: "/", 
+    label: "Dashboard" 
+  },
   {
     href: "/instagram-posts",
     label: "Instagram Posts",
@@ -19,8 +22,46 @@ const navItems = [
 
 export function Navbar() {
   const pathname = usePathname();
+  const [NotiOpen,setNotiopen]  = useState<boolean>(false);
+  // statue of having noti
+  const [HaveNoti,setHaveNoti]  = useState<boolean>(false); 
 
+  const [OnUserMenu,setCloseUserMenu] = useState<boolean>(false)
+  const MenuRef = useRef<HTMLDivElement>(null);
+  function NotiClicked(){
+    setNotiopen((prev)=>!prev)
+  }
+  function useOutsideAlerter(ref:React.RefObject<HTMLElement | HTMLButtonElement | null>,ref2:React.RefObject<HTMLElement | HTMLButtonElement | null>) {
+    useEffect(() => {
+      function handleClickOutside(event:MouseEvent) {
+        if (ref.current && !ref.current.contains(event.target as Node) && !ref2.current.contains(event.target as Node)) {
+          setNotiopen(false)
+        }
+      }
+    document.addEventListener("mousedown", handleClickOutside);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
+    }, [ref]);
+  };
+  useEffect(() => {
+      function handleClickOutsides(event:MouseEvent) {
+        if (MenuRef.current && !MenuRef.current.contains(event.target as Node)) {
+          console.log(ref)
+          setCloseUserMenu(false)
+        }
+      }
+    document.addEventListener("mousedown", handleClickOutsides);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutsides);
+        
+      };
+    }, [OnUserMenu]);
+  const NotiRef = useRef<HTMLInputElement | null>(null);
+  const NotiButtonRef = useRef<HTMLInputElement | null>(null);
+  useOutsideAlerter(NotiRef,NotiButtonRef);
   return (
+    <>
     <nav className="bg-gray-800 border-b border-gray-700">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
@@ -72,11 +113,11 @@ export function Navbar() {
 
           {/* User Menu */}
           <div className="flex items-center space-x-4">
-            <button className="text-gray-300 hover:text-white">
+            <button ref={NotiButtonRef}  className="text-gray-300 hover:text-white" onClick={()=> NotiClicked()}>
               <span className="sr-only">Notifications</span>
               <svg
                 className="h-6 w-6"
-                fill="none"
+                fill= {`${HaveNoti ? "red" : "none"}`}
                 stroke="currentColor"
                 viewBox="0 0 24 24"
               >
@@ -88,8 +129,10 @@ export function Navbar() {
                 />
               </svg>
             </button>
-
-            <button className="flex items-center space-x-2 text-gray-300 hover:text-white">
+            <div ref={NotiRef}  className = {`bg-white h-4/6 w-1/6 top-12 rounded-lg right-52 absolute shadow-box  ${NotiOpen ? "":"hidden"}`}>
+              <p className="text-center text-black">Noti</p>
+            </div>
+            <button className="flex items-center space-x-2 text-gray-300 hover:text-white" onClick={()=>setCloseUserMenu((prev)=>!prev)}>
               <span className="sr-only">User menu</span>
               <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center">
                 <svg
@@ -111,5 +154,9 @@ export function Navbar() {
         </div>
       </div>
     </nav>
+    {
+        <UserMenu ref = {MenuRef} change = {setCloseUserMenu} res = {OnUserMenu}/>
+    }
+    </>
   );
 }

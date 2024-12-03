@@ -28,6 +28,7 @@ SECRET_KEY = 'django-insecure-i$3i#v$0!$g(ry(@v7b2v-bydv=h=!8#i+f%y#%#6+neyfu2te
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
+CORS_ORIGIN_ALLOW_ALL = False 
 
 CORS_ORIGIN_WHITELIST = [
     "http://127.0.0.1:8000",
@@ -35,10 +36,6 @@ CORS_ORIGIN_WHITELIST = [
     "http://127.0.0.1:3001",
     'http://localhost:3000',  
     'http://0.0.0.0:3000', 
-    'http://49.213.238.75:3000',  
-    'http://49.213.238.75:3009',  
-    "https://lai.iside.space",
-    "https://lai.api.iside.space",
 ]
 
 CSRF_TRUSTED_ORIGINS = CORS_ORIGIN_WHITELIST

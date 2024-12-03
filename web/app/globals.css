@@ -19,7 +19,9 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+.main {
 
+}
 /* 使用 @layer utilities 添加文本平衡功能 */
 @layer utilities {
   .text-balance {

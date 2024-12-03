@@ -3,7 +3,7 @@ import { Providers } from "./providers";
 import { Navbar } from "./components/layout/Navbar";
 import { Toaster } from "react-hot-toast";
 import "./globals.css";
-
+import ClientWrapper from "./components/common/Clientwarpper";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
@@ -23,8 +23,9 @@ export default function RootLayout({
       >
         <Providers>
           <div className="flex flex-col min-h-screen">
-            <Navbar />
-            <main className="flex-1">{children}</main>
+            <ClientWrapper>
+              <main className="flex-1">{children}</main>
+            </ClientWrapper>
           </div>
           <Toaster position="top-right" />
         </Providers>

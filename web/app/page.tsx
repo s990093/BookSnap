@@ -1,12 +1,14 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import { QuickActionsSection } from "./components/dashboard/QuickActionsSection";
 import { RecentPostsSection } from "./components/dashboard/RecentPostsSection";
 import { EventsSection } from "./components/dashboard/EventsSection";
+import { Navbar } from "./components/layout/Navbar";
+import Cookies from 'js-cookie'
 
 const LoadingFallback = () => (
-  <div className="h-96 bg-gray-800 rounded-lg animate-pulse" />
+  <div className="h-96 bg-gray-800 rounded-lg animate-pulse" /> 
 );
 
 export default function DashboardPage() {

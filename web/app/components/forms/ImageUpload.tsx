@@ -1,10 +1,8 @@
-"use client";
-
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDropzone } from "react-dropzone";
 import Image from "next/image";
-import { XMarkIcon } from "@heroicons/react/24/solid";
+import { XMarkIcon,PlusIcon } from "@heroicons/react/24/solid";
 
 interface ImageUploadProps {
   onImagesSelected: (files: File[]) => void;
@@ -19,15 +17,19 @@ export function ImageUpload({
 }: ImageUploadProps) {
   const [previews, setPreviews] = useState<string[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-
+  const [Uploaded, setUploaded] = useState<boolean>(false);
+  const [Ismax, setIsmax] = useState<boolean>(false)
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
       const totalImages = previews.length + acceptedFiles.length;
+      if (totalImages == maxFiles) {
+        setIsmax(true);
+      }
       if (totalImages > maxFiles) {
         alert(`Maximum ${maxFiles} files allowed`);
         return;
       }
-
+      setUploaded(true);
       setSelectedFiles((prev) => [...prev, ...acceptedFiles]);
       const newPreviews = acceptedFiles.map((file) =>
         URL.createObjectURL(file)
@@ -50,13 +52,16 @@ export function ImageUpload({
     setPreviews((prev) => prev.filter((_, i) => i !== index));
     setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
     onImagesSelected(selectedFiles.filter((_, i) => i !== index));
+    if (index==0) {
+      setUploaded((prev)=>!prev)
+    }
   };
-
   return (
     <div className="space-y-4">
       <div
         {...getRootProps()}
         className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors
+          ${Uploaded ? 'hidden' : 'visible'}
           ${
             isDragActive
               ? "border-blue-500 bg-blue-500/10"
@@ -133,6 +138,13 @@ export function ImageUpload({
               </motion.div>
             ))}
           </motion.div>
+        )}
+        {( Ismax ||
+          <div {...getRootProps()} className={`flex outline rounded-lg justify-center ${Uploaded ?  "" : "hidden"}`}>
+                          <PlusIcon className="h-10">
+                            <input {...getInputProps()} />
+                          </PlusIcon>
+          </div>
         )}
       </AnimatePresence>
     </div>
