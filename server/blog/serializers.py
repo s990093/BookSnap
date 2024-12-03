@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Country, Author, PostType, Post, Image
+from .models import Country, Author, PostType, Post, Image, Reel
 
 class CountrySerializer(serializers.ModelSerializer):
     class Meta:
@@ -30,3 +30,9 @@ class PostSerializer(serializers.ModelSerializer):
         model = Post
         fields = ['id', 'title', 'post_type', 'content', 'images', 'user', 'country', 'author']
         read_only_fields = ['user']
+
+
+class ReelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Reel
+        fields = ['id', 'title', 'video', 'content', 'user', 'created_at']

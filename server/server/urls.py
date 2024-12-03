@@ -20,12 +20,14 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
 
-from blog.views import upload_file, post_list, dashboard
+from blog.views import upload_file, post_list, dashboard, create_reel, reel_list
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include("blog.urls")),
     path('upload/', upload_file, name='upload_file'),
+    path('reel/create/', create_reel, name='create_reel'),
+    path('reel/list/', reel_list, name='reel_list'),
     path("post-list/", post_list, name="post-list"),
     path('login/', auth_views.LoginView.as_view(
         template_name='registration/login.html',

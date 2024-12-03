@@ -1,6 +1,6 @@
 from rest_framework import viewsets
-from .models import Country, Author, PostType, Post, Image
-from .serializers import CountrySerializer, AuthorSerializer, PostTypeSerializer, PostSerializer, ImageSerializer
+from .models import Country, Author, PostType, Post, Image, Reel
+from .serializers import CountrySerializer, AuthorSerializer, PostTypeSerializer, PostSerializer, ImageSerializer, ReelSerializer
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 from django.http import HttpResponse
@@ -55,6 +55,15 @@ class ImageViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
     queryset = Image.objects.all()
     serializer_class = ImageSerializer
     # permission_classes = [IsAuthenticatedOrReadOnly]
+
+
+class ReelViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
+    queryset = Reel.objects.all()
+    serializer_class = ReelSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
 
 @login_required
 def upload_file(request):
@@ -117,8 +126,7 @@ def upload_file(request):
         'authors': Author.objects.all(),
         'user': request.user,
     }
-    return render(request, 'upload.html', context)
-
+    return render(request, 'upload_post.html', context)
 
 @login_required
 @api_view(['POST'])
@@ -276,7 +284,7 @@ def download_posts(request):
                     # 为每个帖子创建一个文件夹
                     folder_name = f'{post.title}'
                     
-                    # 添加文本内容
+                    # 添加文���内容
                     content_file = StringIO() 
                     content_file.write(f"{post.content}")
                     zip_file.writestr(f'{folder_name}/content.txt', content_file.getvalue())
@@ -305,10 +313,12 @@ def dashboard(request):
     total_posts = Post.objects.count()
     total_authors = Author.objects.count()
     total_countries = Country.objects.count()
+    total_reels = Reel.objects.count()  # 新增：總影片數量
     
     # 獲取最近一個月的數據
     last_month = timezone.now() - timedelta(days=30)
     recent_posts = Post.objects.filter(created_at__gte=last_month).count()
+    recent_reels = Reel.objects.filter(created_at__gte=last_month).count()  # 新增：最近一個月的影片數量
     
     # 按文章類型統計
     posts_by_type = Post.objects.values('post_type__name')\
@@ -351,11 +361,16 @@ def dashboard(request):
         post_count=Count('post')
     ).order_by('-post_count')[:5]
     
+    # 新增：最近發布的影片
+    recent_reels_list = Reel.objects.select_related('user').order_by('-created_at')[:10]
+    
     context = {
         'total_posts': total_posts,
         'total_authors': total_authors,
         'total_countries': total_countries,
+        'total_reels': total_reels,  # 新增
         'recent_posts': recent_posts,
+        'recent_reels': recent_reels,  # 新增
         'posts_by_type': posts_by_type,
         'posts_by_country': posts_by_country,
         'posts_by_month': posts_by_month,
@@ -364,6 +379,54 @@ def dashboard(request):
         'posts_by_user': posts_by_user,
         'posts_with_most_images': posts_with_most_images,
         'posts_this_week': posts_this_week,
+        'recent_reels_list': recent_reels_list,  # 新增
     }
     
     return render(request, 'dashboard.html', context)
+
+@login_required
+def create_reel(request):
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        video = request.FILES.get('video')
+        content = request.POST.get('content')
+        
+        reel = Reel.objects.create(
+            title=title,
+            video=video,
+            content=content,
+            user=request.user
+        )
+        
+        messages.success(request, '影片上傳成功！')
+        return redirect('reel_detail', pk=reel.pk)  
+        
+    return render(request, 'create_reel.html')
+
+@login_required
+def reel_list(request):
+    # Get filter parameters from URL
+    page = int(request.GET.get('page', 1))
+    reels_per_page = 20
+    
+    # Base queryset
+    reels = Reel.objects.all()
+    
+    # Order by created_at (descending)
+    reels = reels.order_by('-created_at')
+    
+    # Calculate total reels for pagination
+    total_reels = reels.count()
+    
+    # Get paginated reels
+    start = (page - 1) * reels_per_page
+    end = page * reels_per_page
+    reels = reels[start:end]
+    
+    context = {
+        'reels': reels,
+        'has_more': total_reels > end,
+        'current_page': page,
+    }
+    
+    return render(request, 'reel_list.html', context)

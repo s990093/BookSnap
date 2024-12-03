@@ -55,3 +55,19 @@ class Image(models.Model):
     class Meta:
         verbose_name = "Image"
         verbose_name_plural = "Images"
+
+
+class Reel(models.Model):
+    title = models.CharField(max_length=200)
+    video = models.FileField(upload_to='reels/videos/')
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
+
+    def __str__(self):
+        return f"Reel: {self.title}"
+
+    class Meta:
+        verbose_name = "Reel"
+        verbose_name_plural = "Reels"
+        ordering = ['-created_at']
