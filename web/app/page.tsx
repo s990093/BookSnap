@@ -27,7 +27,6 @@ export default function DashboardPage() {
             <EventsSection />
           </Suspense>
         </div>
-        <button onClick={()=> Cookies.remove("authToken")}>1131</button>
       </div>
     </main>
   );

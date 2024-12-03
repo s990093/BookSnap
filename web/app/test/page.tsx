@@ -35,7 +35,7 @@ export default function Testpage(){
     const sendMessage = async (userId, content) => {
         try{
         const response = await fetch(
-          `http://127.0.0.1:8000/api/chats/messages/2/`, {
+          `http://127.0.0.1:8000/api/chats/messages/1/`, {
             method:"post",
             headers: {
                 "Authorization": `Bearer ${token}` ,
@@ -53,7 +53,7 @@ export default function Testpage(){
       const getMessage = async (userId, content) => {
         try{
         const response = await fetch(
-          `http://127.0.0.1:8000/api/chats/messages/2/`, {
+          `http://127.0.0.1:8000/api/chats/messages/1/`, {
             method:"get",
             headers: {
                 "Authorization": `Bearer ${token}` ,
