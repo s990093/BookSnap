@@ -1,0 +1,67 @@
+{% extends 'base.html' %} {% block content %}
+
+<div class="min-h-screen bg-gray-900 text-gray-100 py-8 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-7xl mx-auto">
+    <h1 class="text-4xl font-bold text-center mb-12 text-gray-100">
+      Reel List
+    </h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {% for reel in reels %}
+      <div
+        class="bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition duration-300"
+      >
+        <video class="w-full aspect-video object-cover" controls>
+          <source src="{{ reel.video.url }}" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+
+        <div class="p-6">
+          <h2 class="text-xl font-semibold mb-3 text-gray-100">
+            {{ reel.title }}
+          </h2>
+          <p class="text-gray-400 mb-4">{{ reel.content }}</p>
+
+          <div class="flex items-center justify-between text-sm text-gray-400">
+            <div class="flex items-center">
+              <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                ></path>
+              </svg>
+              <span>{{ reel.user.username }}</span>
+            </div>
+            <time class="text-gray-500">{{ reel.created_at }}</time>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    {% if has_more %}
+    <div class="mt-12 text-center">
+      <a
+        href="?page={{ current_page|add:1 }}"
+        class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gray-800 hover:bg-gray-700 transition duration-300"
+      >
+        Next Page
+        <svg
+          class="ml-2 w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 5l7 7-7 7"
+          ></path>
+        </svg>
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}

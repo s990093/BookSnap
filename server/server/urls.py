@@ -24,6 +24,7 @@ from blog.views import (
     EventViewSet, TemplateImageViewSet
 )
 
+<<<<<<< HEAD
 router = DefaultRouter()
 router.register(r'posts', PostViewSet)
 router.register(r'post-types', PostTypeViewSet)
@@ -34,4 +35,24 @@ router.register(r'template-images', TemplateImageViewSet)
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
+=======
+from blog.views import upload_file, post_list, dashboard, create_reel, reel_list
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('api/', include("blog.urls")),
+    path('upload/', upload_file, name='upload_file'),
+    path('reel/create/', create_reel, name='create_reel'),
+    path('reel/list/', reel_list, name='reel_list'),
+    path("post-list/", post_list, name="post-list"),
+    path('login/', auth_views.LoginView.as_view(
+        template_name='registration/login.html',
+        redirect_authenticated_user=True,
+        next_page='dashboard'
+    ), name='login'),
+    path('logout/', auth_views.LogoutView.as_view(
+        next_page='login'
+    ), name='logout'),
+    path('', dashboard, name='dashboard'),
+>>>>>>> 675d26b (reel model)
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

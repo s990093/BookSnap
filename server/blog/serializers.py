@@ -1,6 +1,22 @@
 from rest_framework import serializers
+<<<<<<< HEAD
 from .models import PostType, Post, PostImage, Event, TemplateImage
 from django.utils import timezone
+=======
+from .models import Country, Author, PostType, Post, Image, Reel
+
+class CountrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Country
+        fields = '__all__'
+
+
+class AuthorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Author
+        fields = '__all__'
+
+>>>>>>> 675d26b (reel model)
 
 class PostTypeSerializer(serializers.ModelSerializer):
     posts_count = serializers.SerializerMethodField()
@@ -58,6 +74,7 @@ class PostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
+<<<<<<< HEAD
         fields = ['id', 'title', 'content', 'tag', 'type', 
                  'created_at', 'updated_at', 'images', 'uploaded_images']
 
@@ -84,3 +101,13 @@ class PostSerializer(serializers.ModelSerializer):
         
         return instance 
 
+=======
+        fields = ['id', 'title', 'post_type', 'content', 'images', 'user', 'country', 'author']
+        read_only_fields = ['user']
+
+
+class ReelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Reel
+        fields = ['id', 'title', 'video', 'content', 'user', 'created_at']
+>>>>>>> 675d26b (reel model)
