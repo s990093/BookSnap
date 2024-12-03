@@ -3,14 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<<<<<<< HEAD
     <link
       rel="icon"
       type="image/svg+xml"
       href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512'><path fill='%23fff' d='M96 0C43 0 0 43 0 96V416c0 53 43 96 96 96H384h32c17.7 0 32-14.3 32-32s-14.3-32-32-32V384c17.7 0 32-14.3 32-32V32c0-17.7-14.3-32-32-32H384 96zm0 384H352v64H96c-17.7 0-32-14.3-32-32s14.3-32 32-32zm32-240c0-8.8 7.2-16 16-16H336c8.8 0 16 7.2 16 16s-7.2 16-16 16H144c-8.8 0-16-7.2-16-16zm16 48H336c8.8 0 16 7.2 16 16s-7.2 16-16 16H144c-8.8 0-16-7.2-16-16s7.2-16 16-16z'/></svg>"
     />
-=======
->>>>>>> ae2a2fd (new)
     <title>{% block title %}BookSnap{% endblock %}</title>
     <link
       href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
@@ -26,11 +23,7 @@
       defer
     ></script>
   </head>
-<<<<<<< HEAD
   <body x-data="{ isOpen: false }" class="bg-gray-900">
-=======
-  <body x-data="{ isOpen: false }">
->>>>>>> ae2a2fd (new)
     <!-- Navbar -->
     <nav class="sticky top-0 z-50 bg-gray-800 shadow-lg">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -38,11 +31,7 @@
           <!-- Logo and Brand -->
           <div class="flex items-center">
             <a
-<<<<<<< HEAD
               href="/"
-=======
-              href="/post-list/"
->>>>>>> ae2a2fd (new)
               class="flex items-center space-x-3 text-white hover:text-gray-300 transition duration-150"
             >
               <i class="fas fa-book-open text-xl"></i>
@@ -57,7 +46,6 @@
               class="text-gray-300 hover:text-white flex items-center space-x-2 transition duration-150"
             >
               <i class="fas fa-upload"></i>
-<<<<<<< HEAD
               <span>Create Post</span>
             </a>
             <a
@@ -66,9 +54,6 @@
             >
               <i class="fas fa-video"></i>
               <span>Create Reel</span>
-=======
-              <span>Upload</span>
->>>>>>> ae2a2fd (new)
             </a>
             <a
               href="/post-list/"
@@ -77,8 +62,6 @@
               <i class="fas fa-list"></i>
               <span>Post List</span>
             </a>
-<<<<<<< HEAD
-<<<<<<< HEAD
             <a
               href="/reel/list/"
               class="text-gray-300 hover:text-white flex items-center space-x-2 transition duration-150"
@@ -86,8 +69,6 @@
               <i class="fas fa-film"></i>
               <span>Reel List</span>
             </a>
-=======
->>>>>>> 419ef2a (blog)
             {% if user.is_authenticated %}
             <div class="flex items-center space-x-4">
               {% if user.is_staff %}
@@ -119,8 +100,6 @@
               <span>Login</span>
             </a>
             {% endif %}
-=======
->>>>>>> ae2a2fd (new)
           </div>
 
           <!-- Mobile Navigation Button -->
@@ -174,7 +153,6 @@
               <span>Upload</span>
             </a>
             <a
-<<<<<<< HEAD
               href="/reel/create/"
               class="text-gray-300 hover:text-white hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium flex items-center space-x-2"
             >
@@ -182,16 +160,12 @@
               <span>Create Reel</span>
             </a>
             <a
-=======
->>>>>>> ae2a2fd (new)
               href="/post-list/"
               class="text-gray-300 hover:text-white hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium flex items-center space-x-2"
             >
               <i class="fas fa-list"></i>
               <span>Post List</span>
             </a>
-<<<<<<< HEAD
-<<<<<<< HEAD
             <a
               href="/reel/list/"
               class="text-gray-300 hover:text-white hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium flex items-center space-x-2"
@@ -199,8 +173,6 @@
               <i class="fas fa-film"></i>
               <span>Reel List</span>
             </a>
-=======
->>>>>>> 419ef2a (blog)
             {% if user.is_authenticated %} {% if user.is_staff %}
             <a
               href="/admin/"
@@ -230,13 +202,10 @@
               <span>Login</span>
             </a>
             {% endif %}
-=======
->>>>>>> ae2a2fd (new)
           </div>
         </div>
       </div>
     </nav>
-<<<<<<< HEAD
     <div class="bg-gray-900 text-gray-100">
       {% block content %}{% endblock %}
     </div>
@@ -298,10 +267,5 @@
         </div>
       </div>
     </footer>
-=======
-    <div class="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-4 fade-in">
-      {% block content %}{% endblock %}
-    </div>
->>>>>>> ae2a2fd (new)
   </body>
 </html>

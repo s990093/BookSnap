@@ -48,7 +48,7 @@ urlpatterns = [
 =======
 from django.contrib.auth import views as auth_views
 
-from blog.views import upload_file, post_list, dashboard
+from blog.views import upload_file, post_list, dashboard, create_reel, reel_list
 
 urlpatterns = [
     path('admin/', admin.site.urls),

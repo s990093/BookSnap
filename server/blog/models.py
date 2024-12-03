@@ -52,37 +52,6 @@ class Image(models.Model):
     def __str__(self):
         return f"Image {self.id}"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-    @property
-    def image_url(self):
-        return self.image.url if self.image else None
-
-class Event(models.Model):
-    title = models.CharField(max_length=200)
-    description = models.TextField()
-    location = models.CharField(max_length=200)
-    date = models.DateField()
-    time = models.TimeField()
-    created_at = models.DateTimeField(default=timezone.now)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return self.title
-
-class TemplateImage(models.Model):
-    image = models.ImageField(upload_to='template_images/%Y/%m/%d/')
-    description = models.TextField()
-    created_at = models.DateTimeField(default=timezone.now)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return self.description
-
-    @property
-    def image_url(self):
-        return self.image.url if self.image else None
-=======
     class Meta:
         verbose_name = "Image"
         verbose_name_plural = "Images"
@@ -101,14 +70,4 @@ class Reel(models.Model):
     class Meta:
         verbose_name = "Reel"
         verbose_name_plural = "Reels"
-<<<<<<< HEAD
         ordering = ['-created_at']
->>>>>>> 675d26b (reel model)
-=======
-        ordering = ['-created_at']
->>>>>>> 675d26b (reel model)
-=======
-    class Meta:
-        verbose_name = "Image"
-        verbose_name_plural = "Images"
->>>>>>> ae2a2fd (new)
