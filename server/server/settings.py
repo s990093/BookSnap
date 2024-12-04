@@ -30,15 +30,7 @@ DEBUG = True
 ALLOWED_HOSTS = ["*"]
 
 CORS_ORIGIN_WHITELIST = [
-    "http://127.0.0.1:8000",
-    "http://127.0.0.1:3000",
-    "http://127.0.0.1:3001",
-    'http://localhost:3000',  
-    'http://0.0.0.0:3000', 
-    'http://49.213.238.75:3000',  
-    'http://49.213.238.75:3009',  
-    "https://lai.iside.space",
-    "https://lai.api.iside.space",
+     'http://0.0.0.0:8000', 
 ]
 
 CSRF_TRUSTED_ORIGINS = CORS_ORIGIN_WHITELIST
