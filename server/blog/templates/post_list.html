@@ -14,24 +14,30 @@
         },
       };
     </script>
+    <style>
+      .text-clamp {
+        display: -webkit-box;
+        -webkit-line-clamp: 5; /* 限制顯示五行 */
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+    </style>
   </head>
-  <body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
+  <body class="dark:bg-gray-900 text-gray-900 dark:text-white">
+    <div
+      id="toast"
+      class="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg opacity-0 pointer-events-none transition-all duration-300 ease-in-out"
+    >
+      Content copied successfully!
+    </div>
     <div class="container mx-auto px-4 py-8">
       <h1 class="text-3xl font-bold mb-6 dark:text-white">All Posts</h1>
 
       <!-- 更新操作欄樣式 -->
-      <div class="flex gap-4 mb-6">
-        <button
-          id="downloadSelected"
-          class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 ease-in-out transform hover:scale-105 active:scale-95"
-          disabled
-        >
-          Download Selected Posts
-        </button>
-
+      <div class="flex flex-col md:flex-row gap-4 mb-6 overflow-x-auto">
         <select
           id="userFilter"
-          class="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 transition-colors duration-200"
+          class="min-w-[120px] bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 transition-colors duration-200"
         >
           <option value="">All Users</option>
           {% for user in users %}
@@ -41,7 +47,7 @@
 
         <select
           id="typeFilter"
-          class="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 transition-colors duration-200"
+          class="min-w-[120px] bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 transition-colors duration-200"
         >
           <option value="">All Types</option>
           {% for type in post_types %}
@@ -51,7 +57,7 @@
 
         <select
           id="countryFilter"
-          class="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 transition-colors duration-200"
+          class="min-w-[120px] bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 transition-colors duration-200"
         >
           <option value="">All Countries</option>
           {% for country in countries %}
@@ -61,7 +67,7 @@
 
         <select
           id="sortBy"
-          class="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 transition-colors duration-200"
+          class="min-w-[120px] bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 transition-colors duration-200"
         >
           <option value="">Sort By</option>
           <option value="clear">Clear Sort</option>
@@ -73,87 +79,159 @@
 
       <!-- 更新表格部分 -->
       <div
-        class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700"
+        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
       >
-        <table class="w-full border-collapse">
-          <thead class="bg-gray-100 dark:bg-gray-800">
-            <tr>
-              <th class="p-4 text-left">
-                <input
-                  type="checkbox"
-                  id="selectAll"
-                  class="rounded border-gray-300 dark:border-gray-600 text-blue-500 focus:ring-blue-500 dark:bg-gray-700"
-                />
-              </th>
-              <th
-                class="p-4 text-left font-semibold text-gray-700 dark:text-gray-200"
+        {% for post in posts %}
+        <div
+          class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden"
+        >
+          <!-- 图片轮播部分 -->
+          {% if post.images.all %}
+          <div class="relative">
+            <div class="carousel-container relative h-48">
+              {% for image in post.images.all %}
+              <img
+                src="{{ image.image.url }}"
+                alt="{{ post.title }}"
+                class="carousel-item absolute w-full h-full object-cover transition-opacity duration-500 {% if forloop.first %}opacity-100{% else %}opacity-0{% endif %}"
+                data-index="{{ forloop.counter0 }}"
+              />
+              {% endfor %} {% if post.images.all|length > 1 %}
+              <!-- 轮播控制按钮 -->
+              <button
+                class="carousel-prev absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full"
               >
-                Image
-              </th>
-              <th
-                class="p-4 text-left font-semibold text-gray-700 dark:text-gray-200"
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 19l-7-7 7-7"
+                  />
+                </svg>
+              </button>
+              <button
+                class="carousel-next absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full"
               >
-                Title
-              </th>
-              <th
-                class="p-4 text-left font-semibold text-gray-700 dark:text-gray-200"
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+              </button>
+              <!-- 轮播指示器 -->
+              <div
+                class="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2"
               >
-                Type
-              </th>
-              <th
-                class="p-4 text-left font-semibold text-gray-700 dark:text-gray-200 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200"
-              >
-                Author
-              </th>
-              <th
-                class="p-4 text-left font-semibold text-gray-700 dark:text-gray-200"
-              >
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-            {% for post in posts %}
-            <tr
-              class="hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-300 ease-in-out transform hover:scale-[1.01] hover:shadow-lg dark:hover:shadow-gray-800"
-            >
-              <td class="p-4">
-                <input
-                  type="checkbox"
-                  class="post-checkbox rounded border-gray-300 dark:border-gray-600 text-blue-500 dark:bg-gray-700"
-                  value="{{ post.id }}"
-                />
-              </td>
-              <td class="p-4">
-                {% if post.images.all %}
-                <img
-                  src="{{ post.images.first.image.url }}"
-                  alt="{{ post.title }}"
-                  class="w-20 h-20 object-cover rounded-lg shadow-sm"
-                />
-                {% else %}
+                {% for image in post.images.all %}
                 <div
-                  class="w-20 h-20 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center"
+                  class="carousel-dot w-2 h-2 rounded-full bg-white {% if forloop.first %}opacity-100{% else %}opacity-50{% endif %}"
+                  data-index="{{ forloop.counter0 }}"
+                ></div>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+          </div>
+          {% else %}
+          <div
+            class="w-full h-48 bg-gray-200 dark:bg-gray-700 flex items-center justify-center"
+          >
+            <span class="text-gray-400 dark:text-gray-500">No image</span>
+          </div>
+          {% endif %}
+
+          <!-- 内容部分 -->
+          <div class="p-4">
+            <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-2">
+              {{ post.title }}
+            </h2>
+
+            <!-- 標籤區域 -->
+            <div class="flex flex-wrap gap-2 mb-3">
+              {% if post.post_type %}
+              <span
+                class="px-2 py-1 text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded-full"
+              >
+                {{ post.post_type.name }}
+              </span>
+              {% endif %} {% if post.country %}
+              <span
+                class="px-2 py-1 text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 rounded-full"
+              >
+                {{ post.country.name }}
+              </span>
+              {% endif %} {% if post.author %}
+              <span
+                class="px-2 py-1 text-xs bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 rounded-full"
+              >
+                {{ post.author.name }}
+              </span>
+              {% endif %}
+            </div>
+
+            <!-- 操作按鈕 -->
+            <div class="mt-4 flex flex-nowrap justify-start gap-2 px-2">
+              <button
+                data-content="{{ post.content }}"
+                class="copy-content-btn flex-1 group relative inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-green-500 text-white text-sm rounded-lg transition-all duration-300 ease-in-out hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
+                aria-label="Copy Content"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
                 >
-                  <span class="text-gray-400 dark:text-gray-500">No image</span>
-                </div>
-                {% endif %}
-              </td>
-              <td class="p-4">{{ post.title }}</td>
-              <td class="p-4">{{ post.post_type.name }}</td>
-              <td class="p-4">{{ post.author.name }}</td>
-              <td class="p-4">
-                <a
-                  href="{% url 'download_post' post.id %}"
-                  class="inline-flex items-center px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all duration-300 ease-in-out transform hover:scale-105 active:scale-95"
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"
+                  />
+                </svg>
+              </button>
+
+              {% if post.images.all|length > 0 %}
+              <button
+                class="download-all-btn flex-1 group relative inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-blue-500 text-white text-sm rounded-lg transition-all duration-300 ease-in-out hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
+                data-images='[{% for image in post.images.all %}{"url": "{{ image.image.url }}", "filename": "{{ post.title }}_{{ forloop.counter }}.jpg"}{% if not forloop.last %},{% endif %}{% endfor %}]'
+                aria-label="Download Images"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
                 >
-                  Download
-                </a>
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                  />
+                </svg>
+              </button>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        {% endfor %}
       </div>
 
       <!-- 在表格後面添加 -->
@@ -172,155 +250,199 @@
     <!-- JavaScript 保持不變 -->
     <script>
       document.addEventListener("DOMContentLoaded", function () {
-        const selectAllCheckbox = document.getElementById("selectAll");
-        const postCheckboxes = document.querySelectorAll(".post-checkbox");
-        const downloadButton = document.getElementById("downloadSelected");
-
-        // 全选/取消全选
-        selectAllCheckbox.addEventListener("change", function () {
-          postCheckboxes.forEach((checkbox) => {
-            checkbox.checked = this.checked;
-          });
-          updateDownloadButton();
-        });
-
-        // 单个复选框变化时更新下载按钮状态
-        postCheckboxes.forEach((checkbox) => {
-          checkbox.addEventListener("change", updateDownloadButton);
-        });
-
-        // 更新下载按钮状态
-        function updateDownloadButton() {
-          const selectedPosts = Array.from(postCheckboxes).filter(
-            (cb) => cb.checked
-          );
-          downloadButton.disabled = selectedPosts.length === 0;
-        }
-
-        // 下载选中的帖子
-        downloadButton.addEventListener("click", function () {
-          const selectedIds = Array.from(postCheckboxes)
-            .filter((cb) => cb.checked)
-            .map((cb) => cb.value);
-
-          if (selectedIds.length > 0) {
-            window.location.href = `/download-posts/?ids=${selectedIds.join(
-              ","
-            )}`;
-          }
-        });
-
-        // 更新排序功能
-        const sortSelect = document.getElementById("sortBy");
-        sortSelect.addEventListener("change", function () {
-          const sortBy = this.value;
-          const currentUrl = new URL(window.location.href);
-
-          if (sortBy === "clear") {
-            // 清除排序參數並重新載入頁面
-            currentUrl.searchParams.delete("sort");
-            window.location.href = "/post-list/";
-            return;
+        // 主要功能類
+        class PostManager {
+          constructor() {
+            this.initializeFilters();
+            this.initializeLoadMore();
+            this.initializeCopyContent();
+            this.initializeCarousel();
+            this.initializeDownload();
           }
 
-          if (sortBy) {
-            currentUrl.searchParams.set("sort", sortBy);
-            window.location.href = currentUrl.toString();
-          }
-        });
+          // 初始化所有過濾器
+          initializeFilters() {
+            const filters = {
+              userFilter: "user",
+              typeFilter: "type",
+              countryFilter: "country",
+              sortBy: "sort",
+            };
 
-        // 設置當前排序選項
-        const urlParams = new URLSearchParams(window.location.search);
-        const currentSort = urlParams.get("sort");
-        if (currentSort && currentSort !== "clear") {
-          sortSelect.value = currentSort;
-        } else {
-          sortSelect.value = "";
-        }
+            for (const [filterId, paramName] of Object.entries(filters)) {
+              const element = document.getElementById(filterId);
+              if (!element) continue;
 
-        // 添加類型過濾功能
-        const typeFilter = document.getElementById("typeFilter");
-        typeFilter.addEventListener("change", function () {
-          const selectedType = this.value;
-          const currentUrl = new URL(window.location.href);
+              // 設置初始值
+              const urlParams = new URLSearchParams(window.location.search);
+              const currentValue = urlParams.get(paramName);
+              if (currentValue) {
+                element.value = currentValue;
+              }
 
-          if (selectedType) {
-            currentUrl.searchParams.set("type", selectedType);
-          } else {
-            currentUrl.searchParams.delete("type");
-          }
+              // 添加事件監聽器
+              element.addEventListener("change", () => {
+                const currentUrl = new URL(window.location.href);
 
-          window.location.href = currentUrl.toString();
-        });
+                if (filterId === "sortBy" && element.value === "clear") {
+                  currentUrl.searchParams.delete("sort");
+                  window.location.href = "/post-list/";
+                  return;
+                }
 
-        // 設置當前選中的類型
-        const currentType = urlParams.get("type");
-        if (currentType) {
-          typeFilter.value = currentType;
-        }
+                if (element.value) {
+                  currentUrl.searchParams.set(paramName, element.value);
+                } else {
+                  currentUrl.searchParams.delete(paramName);
+                }
 
-        // 添加國家過濾功能
-        const countryFilter = document.getElementById("countryFilter");
-        countryFilter.addEventListener("change", function () {
-          const selectedCountry = this.value;
-          const currentUrl = new URL(window.location.href);
-
-          if (selectedCountry) {
-            currentUrl.searchParams.set("country", selectedCountry);
-          } else {
-            currentUrl.searchParams.delete("country");
+                window.location.href = currentUrl.toString();
+              });
+            }
           }
 
-          window.location.href = currentUrl.toString();
-        });
+          // 初始化加載更多功能
+          initializeLoadMore() {
+            const loadMoreBtn = document.getElementById("loadMore");
+            if (!loadMoreBtn) return;
 
-        // 設置當前選中的國家
-        const currentCountry = urlParams.get("country");
-        if (currentCountry) {
-          countryFilter.value = currentCountry;
-        }
+            loadMoreBtn.addEventListener("click", () => {
+              const currentUrl = new URL(window.location.href);
+              const currentPage = parseInt(
+                currentUrl.searchParams.get("page") || "1"
+              );
+              currentUrl.searchParams.set("page", currentPage + 1);
+              window.location.href = currentUrl.toString();
+            });
 
-        // 添加使用者過濾功能
-        const userFilter = document.getElementById("userFilter");
-        userFilter.addEventListener("change", function () {
-          const selectedUser = this.value;
-          const currentUrl = new URL(window.location.href);
-
-          if (selectedUser) {
-            currentUrl.searchParams.set("user", selectedUser);
-          } else {
-            currentUrl.searchParams.delete("user");
+            // 如果是分頁加載，滾動到底部
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get("page")) {
+              window.scrollTo(0, document.body.scrollHeight);
+            }
           }
 
-          window.location.href = currentUrl.toString();
-        });
+          // 初始化複製內文功能
+          initializeCopyContent() {
+            const copyContentBtn =
+              document.querySelectorAll(".copy-content-btn");
+            if (!copyContentBtn) return;
 
-        // 設置當前選中的使用者
-        const currentUser = urlParams.get("user");
-        if (currentUser) {
-          userFilter.value = currentUser;
+            copyContentBtn.forEach((button) => {
+              button.addEventListener("click", () => {
+                const content = button
+                  .getAttribute("data-content")
+                  .replace(/\\u003C[^>]+\\u003E/g, "") // 移除HTML標籤
+                  .replace(/\\u[\dA-F]{4}/gi, (match) => {
+                    // 將Unicode轉義序列轉換為實際字符
+                    return String.fromCharCode(
+                      parseInt(match.replace("\\u", ""), 16)
+                    );
+                  })
+                  .replace(/\\n/g, "\n") // 保留換行
+                  .replace(/\s*\n\s*/g, "\n\n") // 標準化換行，確保有適當的空白
+                  .trim(); // 移除前後空白
+
+                navigator.clipboard.writeText(content).then(
+                  function () {
+                    const toast = document.getElementById("toast");
+                    toast.style.opacity = "1";
+                    toast.style.pointerEvents = "auto";
+
+                    setTimeout(() => {
+                      toast.style.opacity = "0";
+                      toast.style.pointerEvents = "none";
+                    }, 3000); // 3秒後消失
+                  },
+                  function (err) {
+                    console.error("Could not copy text: ", err);
+                    alert("Failed to copy content");
+                  }
+                );
+              });
+            });
+          }
+
+          // 初始化輪播功能
+          initializeCarousel() {
+            const carousels = document.querySelectorAll(".carousel-container");
+            if (!carousels) return;
+
+            carousels.forEach((carousel) => {
+              const items = carousel.querySelectorAll(".carousel-item");
+              const dots = carousel.querySelectorAll(".carousel-dot");
+              const prevBtn = carousel.querySelector(".carousel-prev");
+              const nextBtn = carousel.querySelector(".carousel-next");
+              let currentIndex = 0;
+
+              function showSlide(index) {
+                items.forEach((item) => item.classList.add("opacity-0"));
+                dots.forEach((dot) => dot.classList.add("opacity-50"));
+
+                items[index].classList.remove("opacity-0");
+                dots[index].classList.remove("opacity-50");
+                currentIndex = index;
+              }
+
+              if (prevBtn && nextBtn) {
+                prevBtn.addEventListener("click", () => {
+                  const newIndex =
+                    (currentIndex - 1 + items.length) % items.length;
+                  showSlide(newIndex);
+                });
+
+                nextBtn.addEventListener("click", () => {
+                  const newIndex = (currentIndex + 1) % items.length;
+                  showSlide(newIndex);
+                });
+              }
+
+              dots.forEach((dot) => {
+                dot.addEventListener("click", () => {
+                  const index = parseInt(dot.getAttribute("data-index"));
+                  showSlide(index);
+                });
+              });
+            });
+          }
+
+          // 初始化下載功能
+          initializeDownload() {
+            document.querySelectorAll(".download-all-btn").forEach((button) => {
+              button.addEventListener("click", async function () {
+                try {
+                  const imagesData = JSON.parse(
+                    this.getAttribute("data-images")
+                  );
+
+                  for (const imageData of imagesData) {
+                    const response = await fetch(imageData.url);
+                    const blob = await response.blob();
+
+                    // 創建下載連結
+                    const downloadLink = document.createElement("a");
+                    downloadLink.href = URL.createObjectURL(blob);
+                    downloadLink.download = imageData.filename;
+
+                    // 觸發下載
+                    document.body.appendChild(downloadLink);
+                    downloadLink.click();
+                    document.body.removeChild(downloadLink);
+
+                    // 釋放 URL 對象
+                    URL.revokeObjectURL(downloadLink.href);
+                  }
+                } catch (error) {
+                  console.error("Download failed:", error);
+                  alert("Failed to download images");
+                }
+              });
+            });
+          }
         }
 
-        // 添加 Load More 功能
-        const loadMoreBtn = document.getElementById("loadMore");
-        if (loadMoreBtn) {
-          loadMoreBtn.addEventListener("click", function () {
-            const currentUrl = new URL(window.location.href);
-            const currentPage = parseInt(
-              currentUrl.searchParams.get("page") || "1"
-            );
-
-            currentUrl.searchParams.set("page", currentPage + 1);
-            window.location.href = currentUrl.toString();
-          });
-        }
-
-        // 保持當前頁面的過濾和排序狀態
-        const currentPage = urlParams.get("page");
-        if (currentPage) {
-          // 滾動到頁面底部
-          window.scrollTo(0, document.body.scrollHeight);
-        }
+        // 創建 PostManager 實例
+        const postManager = new PostManager();
       });
     </script>
   </body>

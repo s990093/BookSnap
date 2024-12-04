@@ -26,7 +26,8 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "app/Lib/Stars.jsx"
+    "app/Lib/Stars.jsx",
+    "middleware.ts"
   ],
   "exclude": ["node_modules"]
 }

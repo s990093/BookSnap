@@ -1,30 +1,63 @@
 export interface PostImage {
-  id: string;
+  id: number;
   image: string;
-  altText: string;
-  createdAt: Date;
+  image_url: string;
+  alt_text: string;
+  created_at: string;
+}
+
+export interface Author {
+  id: number;
+  name: string;
+  email: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Country {
+  id: number;
+  name: string;
+  code: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Post {
-  id: string;
+  id: number;
   title: string;
   content: string;
+  tag: string;
   images: PostImage[];
   type: PostType;
-  createdAt: Date;
-  updatedAt: Date;
+  author: Author;
+  country: Country;
+  user: AdminUser;
+  created_at: string;
+  updated_at: string;
 }
 
-export enum PostType {
-  PRODUCT = 'PRODUCT',
-  PROMOTION = 'PROMOTION',
-  ANNOUNCEMENT = 'ANNOUNCEMENT',
-  OTHER = 'OTHER'
+export interface PostType {
+  id: number;
+  name: string;
+  description: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface TemplateImage {
-  id: string;
-  name: string;
-  imageUrl: string;
-  category: string;
+  id: number;
+  image: string;
+  image_url: string;
+  description: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AdminUser {
+  id: number;
+  email: string;
+  username: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
 } 

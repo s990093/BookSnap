@@ -1,9 +1,8 @@
 from rest_framework import viewsets
 from .models import Country, Author, PostType, Post, Image, Reel
 from .serializers import CountrySerializer, AuthorSerializer, PostTypeSerializer, PostSerializer, ImageSerializer, ReelSerializer
-from django.shortcuts import render, redirect
-from django.http import HttpResponseRedirect
-from django.http import HttpResponse
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib import messages 
 from rest_framework.decorators import api_view, parser_classes, authentication_classes
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -22,6 +21,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from django.contrib.auth.models import User
 from django.utils import timezone
+from django.contrib.auth import logout
 
 
 class CountryViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
@@ -284,7 +284,7 @@ def download_posts(request):
                     # 为每个帖子创建一个文件夹
                     folder_name = f'{post.title}'
                     
-                    # 添加文���内容
+                    # 添加文内容
                     content_file = StringIO() 
                     content_file.write(f"{post.content}")
                     zip_file.writestr(f'{folder_name}/content.txt', content_file.getvalue())
@@ -313,7 +313,7 @@ def dashboard(request):
     total_posts = Post.objects.count()
     total_authors = Author.objects.count()
     total_countries = Country.objects.count()
-    total_reels = Reel.objects.count()  # 新增：總影片數量
+    total_reels = Reel.objects.count()
     
     # 獲取最近一個月的數據
     last_month = timezone.now() - timedelta(days=30)
@@ -355,22 +355,21 @@ def dashboard(request):
     # 新增：本週發文統計
     this_week = timezone.now() - timedelta(days=7)
     posts_this_week = Post.objects.filter(created_at__gte=this_week).count()
-    
+     
     # 最活躍的作者
     top_authors = Author.objects.annotate(
         post_count=Count('post')
     ).order_by('-post_count')[:5]
     
-    # 新增：最近發布的影片
     recent_reels_list = Reel.objects.select_related('user').order_by('-created_at')[:10]
     
     context = {
         'total_posts': total_posts,
         'total_authors': total_authors,
         'total_countries': total_countries,
-        'total_reels': total_reels,  # 新增
+        'total_reels': total_reels,
         'recent_posts': recent_posts,
-        'recent_reels': recent_reels,  # 新增
+        'recent_reels': recent_reels,  
         'posts_by_type': posts_by_type,
         'posts_by_country': posts_by_country,
         'posts_by_month': posts_by_month,
@@ -379,7 +378,7 @@ def dashboard(request):
         'posts_by_user': posts_by_user,
         'posts_with_most_images': posts_with_most_images,
         'posts_this_week': posts_this_week,
-        'recent_reels_list': recent_reels_list,  # 新增
+        'recent_reels_list': recent_reels_list, 
     }
     
     return render(request, 'dashboard.html', context)
@@ -399,7 +398,7 @@ def create_reel(request):
         )
         
         messages.success(request, '影片上傳成功！')
-        return redirect('reel_detail', pk=reel.pk)  
+        return redirect('reel_list')  
         
     return render(request, 'create_reel.html')
 
@@ -430,3 +429,26 @@ def reel_list(request):
     }
     
     return render(request, 'reel_list.html', context)
+
+@login_required
+def download_images(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    images = post.images.all()
+
+    # Create a zip file in memory
+    zip_buffer = BytesIO()
+    with zipfile.ZipFile(zip_buffer, 'w') as zip_file:
+        for image in images:
+            # Assuming image.url is the path to the image file
+            image_path = image.image.path
+            zip_file.write(image_path, os.path.basename(image_path))
+
+    # Set the response
+    response = HttpResponse(zip_buffer.getvalue(), content_type='application/zip')
+    response['Content-Disposition'] = f'attachment; filename={post.title}_images.zip'
+
+    return response
+
+def logout_view(request):
+    logout(request)
+    return redirect('login')

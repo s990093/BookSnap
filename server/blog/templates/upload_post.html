@@ -630,6 +630,9 @@
       .then((response) => response.json())
       .then((data) => {
         if (data.message) {
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
         } else {
           alert(data.error || "發生錯誤");
         }

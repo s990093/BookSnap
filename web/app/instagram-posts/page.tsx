@@ -1,17 +1,15 @@
 "use client";
 
-import { useState } from "react";
-import { Post, PostType, TemplateImage } from "@/app/types";
+import React, { useState } from "react";
+import { Post, TemplateImage } from "@/app/types/post";
 import { useQuery } from "@tanstack/react-query";
-import { getPosts, getTemplates } from "@/app/lib/api/index";
+import { postsApi } from "@/app/lib/api/index";
 import { motion, AnimatePresence } from "framer-motion";
-import Select from "react-select";
 import { PostGrid } from "../components/instagram/PostGrid";
 import { PostModal } from "../components/instagram/PostModal";
-import { customSelectStyles } from "../styles/selectStyles";
+import { getTemplates } from "../lib/api/templates";
 
 export default function InstagramPostsPage() {
-  const [selectedType, setSelectedType] = useState<PostType | "ALL">("ALL");
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [selectedTemplates, setSelectedTemplates] = useState<TemplateImage[]>(
     []
@@ -20,53 +18,55 @@ export default function InstagramPostsPage() {
 
   const { data: posts } = useQuery<Post[]>({
     queryKey: ["posts"],
-    queryFn: () => getPosts(),
+    queryFn: () => postsApi.getAll(),
   });
 
-  const { data: templates = [] } = useQuery<TemplateImage[]>({
+  const { data: templates } = useQuery<TemplateImage[]>({
     queryKey: ["templates"],
     queryFn: () => getTemplates(),
   });
 
-  const filteredPosts = posts?.filter((post) =>
-    selectedType === "ALL" ? true : post.type === selectedType
-  );
-
-  const handleDownload = async (imageUrl: string) => {
-    const response = await fetch(imageUrl);
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "instagram-post.jpg";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  };
-
-  const handleBatchDownload = async () => {
-    if (!selectedPost) return;
-    await handleDownload(selectedPost.images[currentImageIndex].image);
-    for (const template of selectedTemplates) {
-      await handleDownload(template.image_url);
+  const handleDownload = async (imageUrl: string, filename: string) => {
+    try {
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Download failed:", error);
     }
   };
 
-  const handleTemplateToggle = (template: TemplateImage) => {
-    setSelectedTemplates((prev) =>
-      prev.some((t) => t.id === template.id)
-        ? prev.filter((t) => t.id !== template.id)
-        : [...prev, template]
-    );
-  };
+  const handleDownloadAll = async () => {
+    try {
+      // 下載貼文的所有圖片
+      if (selectedPost) {
+        const images = Array.isArray(selectedPost.images)
+          ? selectedPost.images
+          : [selectedPost.images];
 
-  const typeOptions = [
-    { value: "ALL", label: "All Posts" },
-    ...Object.values(PostType).map((type) => ({
-      value: type,
-      label: type,
-    })),
-  ];
+        for (let i = 0; i < images.length; i++) {
+          const postFilename = `1-${i + 1}-post-${selectedPost.id}.jpg`;
+          await handleDownload(images[i].image, postFilename);
+        }
+      }
+
+      // 下載所選模板圖片
+      for (let i = 0; i < selectedTemplates.length; i++) {
+        const template = selectedTemplates[i];
+        const templateFilename = `2-${i + 1}-template-${template.id}.jpg`;
+        await handleDownload(template.image, templateFilename);
+      }
+    } catch (error) {
+      console.error("批量下載失敗:", error);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100">
@@ -79,22 +79,7 @@ export default function InstagramPostsPage() {
           Instagram Posts
         </motion.h1>
 
-        <div className="mb-6 w-full max-w-xs">
-          <Select
-            instanceId="post-type-select"
-            value={typeOptions.find((option) => option.value === selectedType)}
-            onChange={(option) =>
-              setSelectedType(option?.value as PostType | "ALL")
-            }
-            options={typeOptions}
-            styles={customSelectStyles}
-            className="text-sm"
-            placeholder="Select post type..."
-            isSearchable={false}
-          />
-        </div>
-
-        <PostGrid posts={filteredPosts || []} onPostClick={setSelectedPost} />
+        {posts && <PostGrid posts={posts} onPostClick={setSelectedPost} />}
 
         <AnimatePresence>
           {selectedPost && templates && (
@@ -104,9 +89,14 @@ export default function InstagramPostsPage() {
               selectedTemplates={selectedTemplates}
               currentImageIndex={currentImageIndex}
               onClose={() => setSelectedPost(null)}
-              onDownload={handleDownload}
-              onBatchDownload={handleBatchDownload}
-              onTemplateToggle={handleTemplateToggle}
+              onDownload={handleDownloadAll}
+              onTemplateToggle={(template) => {
+                setSelectedTemplates((prev: TemplateImage[]) =>
+                  prev.some((t) => t.id === template.id)
+                    ? prev.filter((t) => t.id !== template.id)
+                    : [...prev, template]
+                );
+              }}
               onImageIndexChange={setCurrentImageIndex}
             />
           )}

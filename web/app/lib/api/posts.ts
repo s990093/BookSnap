@@ -1,55 +1,42 @@
-import axios from 'axios';
-import { Post } from '@/app/types';
+import { Post } from "@/app/types";
+import { apiClient } from "./base";
 
-const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
-});
 
-interface GetPostsOptions {
+
+interface GetAllParams {
   limit?: number;
   offset?: number;
-  type?: number;
+  sort?: 'asc' | 'desc';
 }
 
-// 獲取所有貼文，支持分頁和過濾
-export async function getPosts(options: GetPostsOptions = {}) {
-  const { data } = await api.get<Post[]>('/posts/', { params: options });
-  return data;
-}
+export const postsApi = {
+  async getAll(params?: GetAllParams): Promise<Post[]> {
+    return apiClient.fetch<Post[]>('/posts/', {
+      params: params
+    });
+  },
 
-// 獲取單個貼文
-export async function getPost(id: number) {
-  const { data } = await api.get<Post>(`/posts/${id}/`);
-  return data;
-}
+  async getById(id: number): Promise<Post> {
+    return apiClient.fetch<Post>(`/posts/${id}/`);
+  },
 
-// 創建貼文，支持多圖片上傳
-export async function createPost(formData: FormData) {
-  const { data } = await api.post<Post>('/posts/', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
-  return data;
-}
+  async create(data: FormData): Promise<Post> {
+    return apiClient.fetch<Post>('/posts/', {
+      method: 'POST',
+      data: data,
+    });
+  },
 
-// 更新貼文
-export async function updatePost(id: number, formData: FormData) {
-  const { data } = await api.put<Post>(`/posts/${id}/`, formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
-  return data;
-}
+  async update(id: number, data: FormData): Promise<Post> {
+    return apiClient.fetch<Post>(`/posts/${id}/`, {
+      method: 'PUT',
+      data: data,
+    });
+  },
 
-// 刪除貼文
-export async function deletePost(id: number) {
-  await api.delete(`/posts/${id}/`);
-}
-
-// 獲取最近的貼文
-export async function getRecentPosts(limit: number = 5) {
-  const { data } = await api.get<Post[]>('/posts/recent/', { params: { limit } });
-  return data;
-} 
+  async delete(id: number): Promise<void> {
+    await apiClient.fetch(`/posts/${id}/`, {
+      method: 'DELETE',
+    });
+  }
+}; 

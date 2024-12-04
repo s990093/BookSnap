@@ -1,5 +1,14 @@
 {% extends 'base.html' %} {% block content %}
 
+<style>
+  .line-clamp-5 {
+    display: -webkit-box;
+    -webkit-line-clamp: 5;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>
+
 <div class="min-h-screen bg-gray-900 text-gray-100 py-8 px-4 sm:px-6 lg:px-8">
   <div class="max-w-7xl mx-auto">
     <h1 class="text-4xl font-bold text-center mb-12 text-gray-100">
@@ -11,7 +20,12 @@
       <div
         class="bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition duration-300"
       >
-        <video class="w-full aspect-video object-cover" controls>
+        <video
+          class="w-full aspect-video object-cover"
+          controls
+          preload="metadata"
+          style="max-height: 300px"
+        >
           <source src="{{ reel.video.url }}" type="video/mp4" />
           Your browser does not support the video tag.
         </video>
@@ -20,9 +34,11 @@
           <h2 class="text-xl font-semibold mb-3 text-gray-100">
             {{ reel.title }}
           </h2>
-          <p class="text-gray-400 mb-4">{{ reel.content }}</p>
+          <p class="text-gray-400 mb-4 line-clamp-5">{{ reel.content }}</p>
 
-          <div class="flex items-center justify-between text-sm text-gray-400">
+          <div
+            class="flex items-center justify-between text-sm text-gray-400 mb-4"
+          >
             <div class="flex items-center">
               <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                 <path
@@ -32,6 +48,50 @@
               <span>{{ reel.user.username }}</span>
             </div>
             <time class="text-gray-500">{{ reel.created_at }}</time>
+          </div>
+
+          <div class="flex space-x-3">
+            <a
+              href="{{ reel.video.url }}"
+              download="{{ reel.title }}.mp4"
+              class="flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition duration-300"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <svg
+                class="w-4 h-4 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                />
+              </svg>
+              下載影片
+            </a>
+            <button
+              onclick="copyContent('{{ reel.content|escapejs }}')"
+              class="flex items-center px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition duration-300"
+            >
+              <svg
+                class="w-4 h-4 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"
+                />
+              </svg>
+              複製內文
+            </button>
           </div>
         </div>
       </div>
@@ -63,5 +123,39 @@
     {% endif %}
   </div>
 </div>
+
+<script>
+  // 檢測是否為 iOS 設備
+  function isIOS() {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  }
+
+  // 在點擊下載按鈕時顯示提示
+  document.addEventListener("DOMContentLoaded", function () {
+    const downloadLinks = document.querySelectorAll("a[download]");
+    downloadLinks.forEach((link) => {
+      link.addEventListener("click", function (e) {
+        if (isIOS()) {
+          alert(
+            "iOS 用戶請點擊影片播放後，長按影片選擇「儲存影片」即可保存到相簿"
+          );
+        }
+      });
+    });
+  });
+
+  // 原有的複製功能保持不變
+  function copyContent(content) {
+    navigator.clipboard
+      .writeText(content)
+      .then(function () {
+        alert("內文已複製到剪貼簿！");
+      })
+      .catch(function (err) {
+        console.error("複製失敗：", err);
+        alert("複製失敗，請重試。");
+      });
+  }
+</script>
 
 {% endblock %}

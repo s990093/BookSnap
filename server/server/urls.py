@@ -20,7 +20,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
 
-from blog.views import upload_file, post_list, dashboard, create_reel, reel_list
+from blog.views import upload_file, post_list, dashboard, create_reel, reel_list, logout_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -34,8 +34,6 @@ urlpatterns = [
         redirect_authenticated_user=True,
         next_page='dashboard'
     ), name='login'),
-    path('logout/', auth_views.LogoutView.as_view(
-        next_page='login'
-    ), name='logout'),
+    path('logout/', logout_view, name='logout'),
     path('', dashboard, name='dashboard'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

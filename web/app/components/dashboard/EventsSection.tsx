@@ -1,14 +1,14 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { getEvents } from "@/app/lib/api";
+import { eventsAPI } from "@/app/lib/api/index";
 import { EventsList } from "./EventsList";
 import { motion } from "framer-motion";
 
 export function EventsSection() {
   const { data: events, isLoading } = useQuery({
     queryKey: ["events", "upcoming"],
-    queryFn: () => getEvents({ upcoming: true, limit: 5 }),
+    queryFn: () => eventsAPI.getEvents({ upcoming: true, limit: 5 }),
   });
 
   return (

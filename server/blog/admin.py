@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Country, Author, PostType, Post, Image
+from .models import Country, Author, PostType, Post, Image, Reel
 
 @admin.register(Country)
 class CountryAdmin(admin.ModelAdmin):
@@ -26,3 +26,6 @@ class PostAdmin(admin.ModelAdmin):
 @admin.register(Image)
 class ImageAdmin(admin.ModelAdmin):
     list_display = ('id', 'image')
+
+# Register the Reel model
+admin.site.register(Reel)

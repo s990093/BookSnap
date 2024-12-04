@@ -1,6 +1,7 @@
-import { Post } from "@/app/types";
+import React from "react";
+import Image from "next/image";
+import { Post } from "@/app/types/post";
 import { motion } from "framer-motion";
-import { LazyLoadImage } from "../common/LazyLoadImage";
 
 interface PostGridProps {
   posts: Post[];
@@ -9,34 +10,36 @@ interface PostGridProps {
 
 export function PostGrid({ posts, onPostClick }: PostGridProps) {
   return (
-    <motion.div
-      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ staggerChildren: 0.1 }}
-    >
-      {posts?.map((post) => (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {posts.map((post) => (
         <motion.div
           key={post.id}
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
           whileHover={{ scale: 1.02 }}
-          className="bg-gray-800 border border-gray-700 rounded-lg p-4 cursor-pointer hover:shadow-xl transition-all"
+          className="bg-gray-800 rounded-lg overflow-hidden cursor-pointer"
           onClick={() => onPostClick(post)}
         >
-          <div className="relative h-48 mb-4 overflow-hidden rounded">
-            <LazyLoadImage
-              src={post.images[0]?.image || ""}
+          <div className="relative h-48">
+            <Image
+              src={post.images[0]?.image_url || "/placeholder.jpg"}
               alt={post.title}
-              effect="blur"
-              className="object-cover w-full h-full"
-              wrapperClassName="w-full h-full"
+              fill
+              className="object-cover"
             />
           </div>
-          <h2 className="font-semibold mb-2">{post.title}</h2>
-          <p className="text-sm text-gray-400">{post.type}</p>
+          <div className="p-4">
+            <h2 className="text-lg font-semibold text-white mb-2">
+              {post.title}
+            </h2>
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-gray-400">{post.type.name}</span>
+              <span className="text-sm text-gray-400">{post.author.name}</span>
+            </div>
+          </div>
         </motion.div>
       ))}
-    </motion.div>
+    </div>
   );
 }

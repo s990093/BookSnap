@@ -1,7 +1,8 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { PhotoIcon } from "@heroicons/react/24/solid";
 
@@ -12,13 +13,28 @@ const navItems = [
     label: "Instagram Posts",
     icon: PhotoIcon,
   },
-  //   { href: "/posts", label: "Posts" },
-  //   { href: "/events", label: "Events" },
-  //   { href: "/design-templates", label: "Design Templates" },
 ];
 
 export function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const [userName, setUserName] = useState<string>("");
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  useEffect(() => {
+    // 從 localStorage 讀取使用者資訊
+    const userInfo = localStorage.getItem("user");
+    if (userInfo) {
+      const { username } = JSON.parse(userInfo);
+      setUserName(username);
+    }
+  }, []);
+
+  const handleSignOut = () => {
+    // 登出時清除 localStorage
+    localStorage.removeItem("userInfo");
+    router.push("/login");
+  };
 
   return (
     <nav className="bg-gray-800 border-b border-gray-700">
@@ -71,11 +87,16 @@ export function Navbar() {
           </div>
 
           {/* User Menu */}
-          <div className="flex items-center space-x-4">
-            <button className="text-gray-300 hover:text-white">
-              <span className="sr-only">Notifications</span>
+          <div className="flex items-center relative">
+            <div
+              className="flex items-center space-x-3 bg-gray-700 hover:bg-gray-600 rounded-full px-4 py-2 cursor-pointer transition-colors duration-200"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              <span className="text-gray-300">{userName || "Guest"}</span>
               <svg
-                className="h-6 w-6"
+                className={`w-4 h-4 text-gray-300 transition-transform duration-200 ${
+                  isMenuOpen ? "rotate-180" : ""
+                }`}
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -83,30 +104,27 @@ export function Navbar() {
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
                 />
               </svg>
-            </button>
+            </div>
 
-            <button className="flex items-center space-x-2 text-gray-300 hover:text-white">
-              <span className="sr-only">User menu</span>
-              <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center">
-                <svg
-                  className="h-5 w-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                  />
-                </svg>
+            {/* Dropdown Menu */}
+            {isMenuOpen && (
+              <div className="absolute right-0 top-full mt-2 w-48 rounded-md shadow-lg bg-gray-700 ring-1 ring-black ring-opacity-5">
+                <div className="py-1" role="menu">
+                  <button
+                    onClick={handleSignOut}
+                    className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-600 hover:text-white transition-colors duration-200"
+                    role="menuitem"
+                  >
+                    Sign Out
+                  </button>
+                  {/* 可以在這裡添加更多選項 */}
+                </div>
               </div>
-            </button>
+            )}
           </div>
         </div>
       </div>

@@ -1,14 +1,14 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { getPosts } from "@/app/lib/api";
+import { postsApi } from "@/app/lib/api/index";
 import { RecentPosts } from "./RecentPosts";
 import { motion } from "framer-motion";
 
 export function RecentPostsSection() {
   const { data: posts, isLoading } = useQuery({
     queryKey: ["posts", "recent"],
-    queryFn: () => getPosts({ limit: 5 }),
+    queryFn: () => postsApi.getAll({ limit: 5 }),
   });
 
   return (

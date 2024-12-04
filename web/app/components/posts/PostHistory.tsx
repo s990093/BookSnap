@@ -1,8 +1,8 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { getPosts } from "@/app/lib/api";
-import { Post } from "@/app/types";
+import { postsApi } from "@/app/lib/api";
+import { Post } from "@/app/lib/api/posts";
 import { AnimatedCard } from "@/app/components/common/AnimatedCard";
 import { Loading } from "@/app/components/common/Loading";
 import { LazyLoadImage } from "@/app/components/common/LazyLoadImage";
@@ -12,7 +12,7 @@ import { motion } from "framer-motion";
 export default function PostHistory() {
   const { data: posts, isLoading } = useQuery<Post[]>({
     queryKey: ["posts", "history"],
-    queryFn: () => getPosts({ limit: 20 }),
+    queryFn: () => postsApi.getAll({ limit: 20 }),
   });
 
   if (isLoading) return <Loading />;

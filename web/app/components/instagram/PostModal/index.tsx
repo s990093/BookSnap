@@ -1,5 +1,5 @@
 import { Post, TemplateImage } from "@/app/types";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { ImageSlideshow } from "./ImageSlideshow";
 import { TemplateSection } from "./TemplateSection";
 import { CaptionSection } from "./CaptionSection";
@@ -82,7 +82,10 @@ export function PostModal({
               onClick={onBatchDownload}
               className="bg-green-600 text-white px-6 py-2.5 rounded-lg hover:bg-green-700 transition-colors duration-200 font-medium shadow-lg hover:shadow-xl flex items-center space-x-2"
             >
-              <span>Download All ({selectedTemplates.length + 1} images)</span>
+              <span>
+                Download All ({selectedTemplates.length + post.images.length}
+                images)
+              </span>
             </button>
           </motion.div>
         )}

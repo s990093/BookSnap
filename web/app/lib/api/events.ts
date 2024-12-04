@@ -1,30 +1,54 @@
-import axios from 'axios';
+import { AxiosRequestConfig } from 'axios';
+import { ApiClient } from './base';
 import { Event } from '@/app/types';
 
-const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
-});
-
-export async function getEvents(options: { limit?: number; offset?: number; upcoming?: boolean } = {}) {
-  const { data } = await api.get<Event[]>('/events/', { params: options });
-  return data;
+export interface CreateEventDTO {
+  title: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+  location?: string;
 }
 
-export async function getEvent(id: number) {
-  const { data } = await api.get<Event>(`/events/${id}/`);
-  return data;
+export type UpdateEventDTO = Partial<CreateEventDTO>
+
+
+export class EventsAPI {
+  private apiClient: ApiClient;
+
+  constructor() {
+    this.apiClient = ApiClient.getInstance();
+  }
+
+  async getEvents(params?: AxiosRequestConfig): Promise<Event[]> {
+    return this.apiClient.fetch<Event[]>('/events/', {
+      params: params
+    });
+  }
+
+  async getEvent(id: string): Promise<Event> {
+    return this.apiClient.fetch<Event>(`/events/${id}`);
+  }
+
+  async createEvent(data: CreateEventDTO): Promise<Event> {
+    return this.apiClient.fetch<Event>('/events', {
+      method: 'POST',
+      data: data,
+    });
+  }
+
+  async updateEvent(id: string, data: UpdateEventDTO): Promise<Event> {
+    return this.apiClient.fetch<Event>(`/events/${id}`, {
+      method: 'PATCH',
+      data: data,
+    });
+  }
+
+  async deleteEvent(id: string): Promise<void> {
+    return this.apiClient.fetch<void>(`/events/${id}`, {
+      method: 'DELETE',
+    });
+  }
 }
 
-export async function createEvent(eventData: Partial<Event>) {
-  const { data } = await api.post<Event>('/events/', eventData);
-  return data;
-}
-
-export async function updateEvent(id: number, eventData: Partial<Event>) {
-  const { data } = await api.put<Event>(`/events/${id}/`, eventData);
-  return data;
-}
-
-export async function deleteEvent(id: number) {
-  await api.delete(`/events/${id}/`);
-} 
+export const eventsAPI = new EventsAPI(); 

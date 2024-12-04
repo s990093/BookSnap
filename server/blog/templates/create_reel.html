@@ -46,6 +46,11 @@
               class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-600 border-dashed rounded-lg hover:border-purple-500 transition-colors bg-gray-700"
             >
               <div class="space-y-1 text-center">
+                <video
+                  id="videoPreview"
+                  class="mx-auto h-48 hidden object-cover rounded-lg mb-4"
+                  controls
+                ></video>
                 <svg
                   class="mx-auto h-12 w-12 text-gray-400"
                   stroke="currentColor"
@@ -72,6 +77,7 @@
                       accept="video/*"
                       required
                       class="sr-only"
+                      onchange="previewVideo(event)"
                     />
                   </label>
                   <p class="pl-1">or drag and drop</p>
@@ -125,4 +131,19 @@
     </div>
   </div>
 </div>
+
+<script>
+  function previewVideo(event) {
+    const video = document.getElementById("videoPreview");
+    const file = event.target.files[0];
+
+    if (file) {
+      video.classList.remove("hidden");
+      video.src = URL.createObjectURL(file);
+    } else {
+      video.classList.add("hidden");
+      video.src = "";
+    }
+  }
+</script>
 {% endblock %}

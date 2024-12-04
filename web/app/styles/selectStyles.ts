@@ -1,5 +1,7 @@
+import { CSSObjectWithLabel} from 'react-select';
+
 export const customSelectStyles = {
-  control: (base: any) => ({
+  control: (base: CSSObjectWithLabel) => ({
     ...base,
     background: "#1f2937",
     borderColor: "#374151",
@@ -8,12 +10,12 @@ export const customSelectStyles = {
     },
     boxShadow: "none",
   }),
-  menu: (base: any) => ({
+  menu: (base: CSSObjectWithLabel) => ({
     ...base,
     background: "#1f2937",
     border: "1px solid #374151",
   }),
-  option: (base: any, state: { isFocused: boolean }) => ({
+  option: (base: CSSObjectWithLabel, state: { isFocused: boolean }) => ({
     ...base,
     backgroundColor: state.isFocused ? "#4c1d95" : "#1f2937",
     "&:hover": {
@@ -21,11 +23,11 @@ export const customSelectStyles = {
     },
     color: "#f3f4f6",
   }),
-  singleValue: (base: any) => ({
+  singleValue: (base: CSSObjectWithLabel) => ({
     ...base,
     color: "#f3f4f6",
   }),
-  input: (base: any) => ({
+  input: (base: CSSObjectWithLabel) => ({
     ...base,
     color: "#f3f4f6",
   }),

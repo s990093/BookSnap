@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { createPost, updatePost } from "@/app/lib/api";
+import { postsApi } from "@/app/lib/api";
 import { ImageUpload } from "./ImageUpload";
 import { Post } from "@/app/types";
 import { useRouter } from "next/navigation";
@@ -44,9 +44,9 @@ export default function PostForm({ initialData, postType }: PostFormProps) {
       });
 
       if (initialData) {
-        return updatePost(initialData.id, formData);
+        return postsApi.update(initialData.id, formData);
       }
-      return createPost(formData);
+      return postsApi.create(formData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["posts"] });
