@@ -505,6 +505,17 @@
               // 設置輪播圖片
               carouselContainer.innerHTML = "";
               if (cardData.images.length > 0) {
+                // 添加放大按鈕
+                const fullscreenBtn = document.createElement("button");
+                fullscreenBtn.className =
+                  "fullscreen-btn absolute left-4 top-4 z-10 bg-black bg-opacity-50 text-white p-2 rounded-lg hover:bg-opacity-70 transition-all";
+                fullscreenBtn.innerHTML = `
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-5V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                  </svg>
+                `;
+                carouselContainer.appendChild(fullscreenBtn);
+
                 cardData.images.forEach((image, index) => {
                   const img = document.createElement("img");
                   img.src = image.url;
@@ -520,6 +531,30 @@
                 if (cardData.images.length > 1) {
                   this.setupModalCarousel(carouselContainer);
                 }
+
+                // 為放大按鈕添加點擊事件
+                fullscreenBtn.addEventListener("click", (e) => {
+                  e.stopPropagation();
+                  const currentImage = carouselContainer.querySelector(
+                    ".carousel-item:not(.opacity-0)"
+                  );
+                  const fullscreenModal =
+                    document.getElementById("fullscreenModal");
+                  const container = fullscreenModal.querySelector(
+                    ".fullscreen-image-container"
+                  );
+
+                  // 更新全螢幕模態框中的圖片
+                  container.innerHTML = "";
+                  const img = document.createElement("img");
+                  img.src = currentImage.src;
+                  img.className = "max-h-[80vh] w-auto mx-auto object-contain";
+                  container.appendChild(img);
+
+                  // 顯示全螢幕模態框
+                  fullscreenModal.classList.remove("hidden");
+                  document.body.style.overflow = "hidden";
+                });
               }
 
               modal.classList.remove("hidden");
@@ -527,7 +562,7 @@
               document.body.style.overflow = "hidden";
             };
 
-            // 為每個卡片添加點擊事件
+            // 為每個卡片添加事件
             previewCards.forEach((card) => {
               card.addEventListener("click", (e) => {
                 // 如果點擊的是按鈕，不觸發預覽
@@ -553,36 +588,178 @@
             document.addEventListener("keydown", (e) => {
               if (e.key === "Escape") hideModal();
             });
+
+            // 添加全螢幕圖片預覽功
+            const setupFullscreenPreview = () => {
+              const fullscreenModal =
+                document.getElementById("fullscreenModal");
+              const closeFullscreen =
+                document.getElementById("closeFullscreen");
+              let startX = 0;
+              let currentX = 0;
+              let currentImageIndex = 0;
+              let images = [];
+
+              // 顯示全螢幕預覽
+              const showFullscreen = (imageContainer, initialIndex = 0) => {
+                images = Array.from(
+                  imageContainer.querySelectorAll(".carousel-item")
+                );
+                currentImageIndex = initialIndex;
+                updateFullscreenImage();
+                fullscreenModal.classList.remove("hidden");
+                document.body.style.overflow = "hidden";
+              };
+
+              // 更新全螢幕圖片
+              const updateFullscreenImage = () => {
+                const container = fullscreenModal.querySelector(
+                  ".fullscreen-image-container"
+                );
+                container.innerHTML = "";
+
+                // 創建圖片元素
+                const img = document.createElement("img");
+                img.src = images[currentImageIndex].src;
+                img.className = "max-h-[80vh] w-auto mx-auto object-contain";
+                container.appendChild(img);
+              };
+
+              // 觸控事件處理
+              const handleTouchStart = (e) => {
+                startX = e.touches[0].clientX;
+                currentX = startX;
+              };
+
+              const handleTouchMove = (e) => {
+                e.preventDefault();
+                currentX = e.touches[0].clientX;
+              };
+
+              const handleTouchEnd = () => {
+                const diffX = currentX - startX;
+                const threshold = window.innerWidth * 0.2; // 20% 的螢幕寬度作為閾值
+
+                if (Math.abs(diffX) > threshold) {
+                  if (diffX > 0 && currentImageIndex > 0) {
+                    // 向右滑動，顯示上一張
+                    currentImageIndex--;
+                  } else if (
+                    diffX < 0 &&
+                    currentImageIndex < images.length - 1
+                  ) {
+                    // 向左滑動，顯示下一張
+                    currentImageIndex++;
+                  }
+                  updateFullscreenImage();
+                }
+              };
+
+              // 為全螢幕模態框添加觸控事件監聽器
+              const imageContainer = fullscreenModal.querySelector(
+                ".fullscreen-image-container"
+              );
+              imageContainer.addEventListener("touchstart", handleTouchStart, {
+                passive: false,
+              });
+              imageContainer.addEventListener("touchmove", handleTouchMove, {
+                passive: false,
+              });
+              imageContainer.addEventListener("touchend", handleTouchEnd);
+
+              // 關閉全螢幕預覽
+              closeFullscreen.addEventListener("click", () => {
+                fullscreenModal.classList.add("hidden");
+                document.body.style.overflow = "auto";
+              });
+
+              // 為每個圖片添加點擊事件以開啟全螢幕預覽
+              document
+                .querySelectorAll(".modal-carousel-container")
+                .forEach((container) => {
+                  const images = container.querySelectorAll(".carousel-item");
+                  images.forEach((img, index) => {
+                    img.addEventListener("click", () => {
+                      showFullscreen(container, index);
+                    });
+                  });
+                });
+
+              // 添加 ESC 鍵關閉功能
+              document.addEventListener("keydown", (e) => {
+                if (
+                  e.key === "Escape" &&
+                  !fullscreenModal.classList.contains("hidden")
+                ) {
+                  fullscreenModal.classList.add("hidden");
+                  document.body.style.overflow = "auto";
+                }
+              });
+            };
+
+            // 初始化全螢幕預覽
+            setupFullscreenPreview();
           }
 
-          setupModalCarousel(container) {
-            // 添加導航按鈕
-            const prevBtn = document.createElement("button");
-            const nextBtn = document.createElement("button");
-            prevBtn.className =
-              "carousel-prev absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full";
-            nextBtn.className =
-              "carousel-next absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full";
+          // 在 PostManager 類中添加這個方法
+          setupModalCarousel(carouselContainer) {
+            const items = carouselContainer.querySelectorAll(".carousel-item");
+            if (items.length <= 1) return;
 
-            prevBtn.innerHTML = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-            </svg>`;
-            nextBtn.innerHTML = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-            </svg>`;
-
-            container.appendChild(prevBtn);
-            container.appendChild(nextBtn);
-
-            const items = container.querySelectorAll(".carousel-item");
             let currentIndex = 0;
 
+            // 創建導航按鈕
+            const prevBtn = document.createElement("button");
+            prevBtn.className =
+              "carousel-prev absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full";
+            prevBtn.innerHTML = `
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+              </svg>
+            `;
+
+            const nextBtn = document.createElement("button");
+            nextBtn.className =
+              "carousel-next absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full";
+            nextBtn.innerHTML = `
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            `;
+
+            // 創建指示點容器
+            const dotsContainer = document.createElement("div");
+            dotsContainer.className =
+              "absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2";
+
+            // 創建指示點
+            for (let i = 0; i < items.length; i++) {
+              const dot = document.createElement("div");
+              dot.className = "carousel-dot w-2 h-2 rounded-full bg-white";
+              dot.dataset.index = i;
+              dot.addEventListener("click", () => {
+                showSlide(i);
+              });
+              dotsContainer.appendChild(dot);
+            }
+
+            // 添加到容器
+            carouselContainer.appendChild(prevBtn);
+            carouselContainer.appendChild(nextBtn);
+            carouselContainer.appendChild(dotsContainer);
+
+            // 顯示指定幻燈片
             const showSlide = (index) => {
               items.forEach((item) => item.classList.add("opacity-0"));
+              const dots = dotsContainer.querySelectorAll(".carousel-dot");
+              dots.forEach((dot) => dot.classList.add("opacity-50"));
+
               items[index].classList.remove("opacity-0");
+              dots[index].classList.remove("opacity-50");
               currentIndex = index;
             };
 
+            // 添加按鈕事件監聽器
             prevBtn.addEventListener("click", () => {
               const newIndex = (currentIndex - 1 + items.length) % items.length;
               showSlide(newIndex);
@@ -592,23 +769,31 @@
               const newIndex = (currentIndex + 1) % items.length;
               showSlide(newIndex);
             });
+
+            // 添加指示點點擊事件
+            dotsContainer.querySelectorAll(".carousel-dot").forEach((dot) => {
+              dot.addEventListener("click", () => {
+                const index = parseInt(dot.dataset.index);
+                showSlide(index);
+              });
+            });
           }
         }
 
-        // 創建 PostManager 實例
+        // 創建 PostManager 實
         const postManager = new PostManager();
       });
     </script>
 
-    <!-- 在 body 結束標籤前添加模態框 -->
+    <!-- 修改預覽模態框 -->
     <div
       id="previewModal"
-      class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50"
+      class="fixed inset-0 bg-black bg-opacity-50 hidden z-50"
     >
-      <div
-        class="bg-white dark:bg-gray-800 rounded-lg max-w-4xl w-full mx-4 overflow-hidden"
-      >
-        <div class="relative">
+      <div class="h-full w-full flex items-center justify-center p-4">
+        <div
+          class="bg-white dark:bg-gray-800 rounded-lg w-full max-w-4xl max-h-[90vh] flex flex-col"
+        >
           <!-- 關閉按鈕 -->
           <button
             id="closeModal"
@@ -630,33 +815,48 @@
           </button>
 
           <!-- 模態框內容 -->
-          <div class="modal-content p-6">
+          <div class="flex-1 flex flex-col overflow-hidden">
             <!-- 圖片輪播 -->
-            <div class="modal-carousel-container relative h-96 mb-4">
-              <!-- 圖片將由 JavaScript 動態插入，添加長按提示 -->
-              <div
-                class="absolute bottom-2 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-50 text-white px-3 py-1 rounded-full text-sm ios-hint hidden"
+            <div class="modal-carousel-container relative h-72 flex-shrink-0">
+              <!-- 添加放大按鈕 -->
+              <button
+                class="fullscreen-btn absolute left-4 top-4 z-10 bg-black bg-opacity-50 text-white p-2 rounded-lg hover:bg-opacity-70 transition-all"
               >
-                長按圖片可儲存至相簿
-              </div>
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4 8V4m0 0h4M4 4l5 5m11-5V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"
+                  />
+                </svg>
+              </button>
+              <!-- 圖片將由 JavaScript 動態插入 -->
             </div>
 
-            <!-- 文字內容 -->
-            <h2
-              id="modalTitle"
-              class="text-2xl font-bold mb-4 dark:text-white"
-            ></h2>
-            <div id="modalTags" class="flex flex-wrap gap-2 mb-4"></div>
-            <p
-              id="modalContent"
-              class="text-gray-700 dark:text-gray-300 whitespace-pre-wrap"
-            ></p>
+            <!-- 文字內容區域 -->
+            <div class="flex-1 overflow-y-auto p-6">
+              <h2
+                id="modalTitle"
+                class="text-2xl font-bold mb-4 dark:text-white"
+              ></h2>
+              <div id="modalTags" class="flex flex-wrap gap-2 mb-4"></div>
+              <p
+                id="modalContent"
+                class="text-gray-700 dark:text-gray-300 whitespace-pre-wrap"
+              ></p>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- 修改全螢幕預覽模態框 -->
+    <!-- 添加全螢幕預覽模態框 -->
     <div
       id="fullscreenModal"
       class="fixed inset-0 bg-black hidden z-[60] overflow-y-auto"
