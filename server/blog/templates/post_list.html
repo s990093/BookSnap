@@ -186,7 +186,7 @@
             <!-- 操作按鈕 -->
             <div class="mt-4 flex flex-nowrap justify-start gap-2 px-2">
               <button
-                data-content="{{ post.content }}"
+                data-content="{{ post.content|escapejs }}"
                 class="copy-content-btn flex-1 group relative inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-green-500 text-white text-sm rounded-lg transition-all duration-300 ease-in-out hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
                 aria-label="Copy Content"
               >
@@ -329,36 +329,50 @@
             if (!copyContentBtn) return;
 
             copyContentBtn.forEach((button) => {
-              button.addEventListener("click", () => {
+              button.addEventListener("click", async () => {
                 const content = button
                   .getAttribute("data-content")
-                  .replace(/\\u003C[^>]+\\u003E/g, "") // 移除HTML標籤
+                  .replace(/\\u003C[^>]+\\u003E/g, "")
                   .replace(/\\u[\dA-F]{4}/gi, (match) => {
-                    // 將Unicode轉義序列轉換為實際字符
                     return String.fromCharCode(
                       parseInt(match.replace("\\u", ""), 16)
                     );
                   })
-                  .replace(/\\n/g, "\n") // 保留換行
-                  .replace(/\s*\n\s*/g, "\n\n") // 標準化換行，確保有適當的空白
-                  .trim(); // 移除前後空白
+                  .replace(/\\n/g, "\n")
+                  .replace(/\s*\n\s*/g, "\n\n")
+                  .trim();
 
-                navigator.clipboard.writeText(content).then(
-                  function () {
-                    const toast = document.getElementById("toast");
-                    toast.style.opacity = "1";
-                    toast.style.pointerEvents = "auto";
-
-                    setTimeout(() => {
-                      toast.style.opacity = "0";
-                      toast.style.pointerEvents = "none";
-                    }, 3000); // 3秒後消失
-                  },
-                  function (err) {
-                    console.error("Could not copy text: ", err);
-                    alert("Failed to copy content");
+                try {
+                  // 檢查是否支援 navigator.clipboard API
+                  if (navigator.clipboard && window.isSecureContext) {
+                    await navigator.clipboard.writeText(content);
+                  } else {
+                    // 後備方案：使用傳統的複製方法
+                    const textArea = document.createElement("textarea");
+                    textArea.value = content;
+                    textArea.style.position = "fixed";
+                    textArea.style.left = "-999999px";
+                    textArea.style.top = "-999999px";
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    document.execCommand("copy");
+                    textArea.remove();
                   }
-                );
+
+                  // 顯示成功提示
+                  const toast = document.getElementById("toast");
+                  toast.style.opacity = "1";
+                  toast.style.pointerEvents = "auto";
+
+                  setTimeout(() => {
+                    toast.style.opacity = "0";
+                    toast.style.pointerEvents = "none";
+                  }, 3000);
+                } catch (err) {
+                  console.error("Could not copy text: ", err);
+                  alert("Failed to copy content");
+                }
               });
             });
           }
@@ -406,7 +420,7 @@
             });
           }
 
-          // 初始化下載功能
+          // 初始化下��功能
           initializeDownload() {
             document.querySelectorAll(".download-all-btn").forEach((button) => {
               button.addEventListener("click", async function () {
