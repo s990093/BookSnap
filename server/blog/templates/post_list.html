@@ -83,7 +83,15 @@
       >
         {% for post in posts %}
         <div
-          class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden"
+          class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden cursor-pointer preview-card"
+          data-title="{{ post.title }}"
+          data-content="{{ post.content|escapejs }}"
+          data-images='[{% for image in post.images.all %}{"url": "{{ image.image.url }}"}{% if not forloop.last %},{% endif %}{% endfor %}]'
+          data-tags='[
+            {% if post.post_type %}{"text": "{{ post.post_type.name }}", "class": "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"}{% endif %}
+            {% if post.country %},{"text": "{{ post.country.name }}", "class": "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"}{% endif %}
+            {% if post.author %},{"text": "{{ post.author.name }}", "class": "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200"}{% endif %}
+          ]'
         >
           <!-- 图片轮播部分 -->
           {% if post.images.all %}
@@ -258,6 +266,7 @@
             this.initializeCopyContent();
             this.initializeCarousel();
             this.initializeDownload();
+            this.initializePreview();
           }
 
           // 初始化所有過濾器
@@ -420,7 +429,7 @@
             });
           }
 
-          // 初始化下��功能
+          // 初始化下功能
           initializeDownload() {
             document.querySelectorAll(".download-all-btn").forEach((button) => {
               button.addEventListener("click", async function () {
@@ -453,12 +462,245 @@
               });
             });
           }
+
+          // 添加預覽功能初始化
+          initializePreview() {
+            const modal = document.getElementById("previewModal");
+            const closeModal = document.getElementById("closeModal");
+            const previewCards = document.querySelectorAll(".preview-card");
+
+            // 關閉模態框
+            const hideModal = () => {
+              modal.classList.remove("flex");
+              modal.classList.add("hidden");
+              document.body.style.overflow = "auto";
+            };
+
+            // 顯示模態框
+            const showModal = (cardData) => {
+              const modalTitle = document.getElementById("modalTitle");
+              const modalContent = document.getElementById("modalContent");
+              const modalTags = document.getElementById("modalTags");
+              const carouselContainer = document.querySelector(
+                ".modal-carousel-container"
+              );
+
+              // 設置標題和內容
+              modalTitle.textContent = cardData.title;
+              modalContent.textContent = cardData.content
+                .replace(/\\n/g, "\n")
+                .replace(/\\u[\dA-F]{4}/gi, (match) =>
+                  String.fromCharCode(parseInt(match.replace("\\u", ""), 16))
+                );
+
+              // 設置標籤
+              modalTags.innerHTML = "";
+              cardData.tags.forEach((tag) => {
+                const span = document.createElement("span");
+                span.className = `px-2 py-1 text-xs rounded-full ${tag.class}`;
+                span.textContent = tag.text;
+                modalTags.appendChild(span);
+              });
+
+              // 設置輪播圖片
+              carouselContainer.innerHTML = "";
+              if (cardData.images.length > 0) {
+                cardData.images.forEach((image, index) => {
+                  const img = document.createElement("img");
+                  img.src = image.url;
+                  img.alt = cardData.title;
+                  img.className = `carousel-item absolute w-full h-full object-contain transition-opacity duration-500 ${
+                    index === 0 ? "opacity-100" : "opacity-0"
+                  }`;
+                  img.dataset.index = index;
+                  carouselContainer.appendChild(img);
+                });
+
+                // 如果有多張圖片，添加導航按鈕
+                if (cardData.images.length > 1) {
+                  this.setupModalCarousel(carouselContainer);
+                }
+              }
+
+              modal.classList.remove("hidden");
+              modal.classList.add("flex");
+              document.body.style.overflow = "hidden";
+            };
+
+            // 為每個卡片添加點擊事件
+            previewCards.forEach((card) => {
+              card.addEventListener("click", (e) => {
+                // 如果點擊的是按鈕，不觸發預覽
+                if (e.target.closest("button")) return;
+
+                const cardData = {
+                  title: card.dataset.title,
+                  content: card.dataset.content,
+                  images: JSON.parse(card.dataset.images),
+                  tags: JSON.parse(card.dataset.tags),
+                };
+                showModal(cardData);
+              });
+            });
+
+            // 關閉模態框的事件
+            closeModal.addEventListener("click", hideModal);
+            modal.addEventListener("click", (e) => {
+              if (e.target === modal) hideModal();
+            });
+
+            // ESC 鍵關閉模態框
+            document.addEventListener("keydown", (e) => {
+              if (e.key === "Escape") hideModal();
+            });
+          }
+
+          setupModalCarousel(container) {
+            // 添加導航按鈕
+            const prevBtn = document.createElement("button");
+            const nextBtn = document.createElement("button");
+            prevBtn.className =
+              "carousel-prev absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full";
+            nextBtn.className =
+              "carousel-next absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full";
+
+            prevBtn.innerHTML = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>`;
+            nextBtn.innerHTML = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>`;
+
+            container.appendChild(prevBtn);
+            container.appendChild(nextBtn);
+
+            const items = container.querySelectorAll(".carousel-item");
+            let currentIndex = 0;
+
+            const showSlide = (index) => {
+              items.forEach((item) => item.classList.add("opacity-0"));
+              items[index].classList.remove("opacity-0");
+              currentIndex = index;
+            };
+
+            prevBtn.addEventListener("click", () => {
+              const newIndex = (currentIndex - 1 + items.length) % items.length;
+              showSlide(newIndex);
+            });
+
+            nextBtn.addEventListener("click", () => {
+              const newIndex = (currentIndex + 1) % items.length;
+              showSlide(newIndex);
+            });
+          }
         }
 
         // 創建 PostManager 實例
         const postManager = new PostManager();
       });
     </script>
+
+    <!-- 在 body 結束標籤前添加模態框 -->
+    <div
+      id="previewModal"
+      class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50"
+    >
+      <div
+        class="bg-white dark:bg-gray-800 rounded-lg max-w-4xl w-full mx-4 overflow-hidden"
+      >
+        <div class="relative">
+          <!-- 關閉按鈕 -->
+          <button
+            id="closeModal"
+            class="absolute right-4 top-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 z-10"
+          >
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              ></path>
+            </svg>
+          </button>
+
+          <!-- 模態框內容 -->
+          <div class="modal-content p-6">
+            <!-- 圖片輪播 -->
+            <div class="modal-carousel-container relative h-96 mb-4">
+              <!-- 圖片將由 JavaScript 動態插入，添加長按提示 -->
+              <div
+                class="absolute bottom-2 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-50 text-white px-3 py-1 rounded-full text-sm ios-hint hidden"
+              >
+                長按圖片可儲存至相簿
+              </div>
+            </div>
+
+            <!-- 文字內容 -->
+            <h2
+              id="modalTitle"
+              class="text-2xl font-bold mb-4 dark:text-white"
+            ></h2>
+            <div id="modalTags" class="flex flex-wrap gap-2 mb-4"></div>
+            <p
+              id="modalContent"
+              class="text-gray-700 dark:text-gray-300 whitespace-pre-wrap"
+            ></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 修改全螢幕預覽模態框 -->
+    <div
+      id="fullscreenModal"
+      class="fixed inset-0 bg-black hidden z-[60] overflow-y-auto"
+    >
+      <div class="min-h-screen w-full relative py-8">
+        <!-- 關閉按鈕 -->
+        <button
+          id="closeFullscreen"
+          class="fixed right-4 top-4 text-white z-10 p-2 hover:bg-white/10 rounded-full transition-colors"
+        >
+          <svg
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+
+        <!-- 全螢幕內容容器 -->
+        <div class="max-w-4xl mx-auto px-4">
+          <!-- 圖片容器 -->
+          <div class="fullscreen-image-container mb-6">
+            <!-- 圖片將由 JavaScript 動態插入 -->
+          </div>
+
+          <!-- 內容區域 -->
+          <div class="text-white space-y-4">
+            <h2 id="fullscreenTitle" class="text-2xl font-bold"></h2>
+            <div id="fullscreenTags" class="flex flex-wrap gap-2"></div>
+            <p
+              id="fullscreenContent"
+              class="text-gray-200 whitespace-pre-wrap"
+            ></p>
+          </div>
+        </div>
+      </div>
+    </div>
   </body>
 </html>
 {% endblock %}
