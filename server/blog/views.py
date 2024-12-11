@@ -22,7 +22,7 @@ from rest_framework.authentication import SessionAuthentication, BasicAuthentica
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.contrib.auth import logout
-
+from django.db.models.functions import TruncWeek  #
 
 class CountryViewSet(LoginRequiredMixin, viewsets.ModelViewSet):
     queryset = Country.objects.all()
@@ -352,10 +352,20 @@ def dashboard(request):
         image_count=Count('images')
     ).order_by('-image_count')[:5]
     
-    # 新增：本週發文統計
-    this_week = timezone.now() - timedelta(days=7)
-    posts_this_week = Post.objects.filter(created_at__gte=this_week).count()
-     
+    # 獲取本週開始時間
+    today = timezone.now()
+    week_start = today - timedelta(days=today.weekday())
+    week_start = week_start.replace(hour=0, minute=0, second=0, microsecond=0)
+
+    # 統計本週的文章和影片數量
+    posts_this_week = Post.objects.filter(
+        created_at__gte=week_start
+    ).count()
+
+    reels_this_week = Reel.objects.filter(
+        created_at__gte=week_start
+    ).count()
+    
     # 最活躍的作者
     top_authors = Author.objects.annotate(
         post_count=Count('post')
@@ -373,11 +383,12 @@ def dashboard(request):
         'posts_by_type': posts_by_type,
         'posts_by_country': posts_by_country,
         'posts_by_month': posts_by_month,
+        'posts_this_week': posts_this_week,
+        'reels_this_week': reels_this_week,
         'top_authors': top_authors,
         'recent_posts_list': recent_posts_list,
         'posts_by_user': posts_by_user,
         'posts_with_most_images': posts_with_most_images,
-        'posts_this_week': posts_this_week,
         'recent_reels_list': recent_reels_list, 
     }
     

@@ -144,17 +144,40 @@
     });
   });
 
-  // 原有的複製功能保持不變
+  // Updated copy function with fallback
   function copyContent(content) {
-    navigator.clipboard
-      .writeText(content)
-      .then(function () {
-        alert("內文已複製到剪貼簿！");
-      })
-      .catch(function (err) {
-        console.error("複製失敗：", err);
-        alert("複製失敗，請重試。");
-      });
+    if (navigator.clipboard && window.isSecureContext) {
+      // Use Clipboard API when available
+      navigator.clipboard
+        .writeText(content)
+        .then(() => alert("內文已複製到剪貼簿！"))
+        .catch((err) => {
+          console.error("複製失敗：", err);
+          fallbackCopyContent(content);
+        });
+    } else {
+      // Fallback for when Clipboard API is not available
+      fallbackCopyContent(content);
+    }
+  }
+
+  function fallbackCopyContent(content) {
+    const textarea = document.createElement("textarea");
+    textarea.value = content;
+    textarea.style.position = "fixed"; // Avoid scrolling to bottom
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.select();
+
+    try {
+      document.execCommand("copy");
+      alert("內文已複製到剪貼簿！");
+    } catch (err) {
+      console.error("複製失敗：", err);
+      alert("複製失敗，請重試。");
+    } finally {
+      document.body.removeChild(textarea);
+    }
   }
 </script>
 

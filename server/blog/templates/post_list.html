@@ -101,6 +101,7 @@
               <img
                 src="{{ image.image.url }}"
                 alt="{{ post.title }}"
+                loading="lazy"
                 class="carousel-item absolute w-full h-full object-cover transition-opacity duration-500 {% if forloop.first %}opacity-100{% else %}opacity-0{% endif %}"
                 data-index="{{ forloop.counter0 }}"
               />
@@ -258,7 +259,7 @@
     <!-- JavaScript 保持不變 -->
     <script>
       document.addEventListener("DOMContentLoaded", function () {
-        // 主要功能類
+        // 主要���能類
         class PostManager {
           constructor() {
             this.initializeFilters();
@@ -520,6 +521,7 @@
                   const img = document.createElement("img");
                   img.src = image.url;
                   img.alt = cardData.title;
+                  img.loading = "lazy";
                   img.className = `carousel-item absolute w-full h-full object-contain transition-opacity duration-500 ${
                     index === 0 ? "opacity-100" : "opacity-0"
                   }`;
@@ -548,6 +550,7 @@
                   container.innerHTML = "";
                   const img = document.createElement("img");
                   img.src = currentImage.src;
+                  img.loading = "lazy";
                   img.className = "max-h-[80vh] w-auto mx-auto object-contain";
                   container.appendChild(img);
 
@@ -621,6 +624,7 @@
                 // 創建圖片元素
                 const img = document.createElement("img");
                 img.src = images[currentImageIndex].src;
+                img.loading = "lazy";
                 img.className = "max-h-[80vh] w-auto mx-auto object-contain";
                 container.appendChild(img);
               };
