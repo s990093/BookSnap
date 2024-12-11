@@ -286,63 +286,71 @@
     </div>
 
     <script>
-      // Set chart dark mode
-      Chart.defaults.color = document.documentElement.classList.contains('dark') ? '#fff' : '#666';
+        // Set chart dark mode
+        Chart.defaults.color = document.documentElement.classList.contains('dark') ? '#fff' : '#666';
 
-      // Post Type Distribution Chart
-      new Chart(document.getElementById('postTypeChart'), {
-          type: 'pie',
-          data: {
-              labels: [{% for item in posts_by_type %}'{{ item.post_type__name }}',{% endfor %}],
-              datasets: [{
-                  data: [{% for item in posts_by_type %}{{ item.count }},{% endfor %}],
-                  backgroundColor: [
-                      '#3B82F6', '#10B981', '#8B5CF6', '#F59E0B', '#EF4444'
-                  ]
-              }]
-          }
-      });
+        // Post Type Distribution Chart
+        new Chart(document.getElementById('postTypeChart'), {
+            type: 'pie',
+            data: {
+                labels: [{% for item in posts_by_type %}'{{ item.post_type__name }}',{% endfor %}],
+                datasets: [{
+                    data: [{% for item in posts_by_type %}{{ item.count }},{% endfor %}],
+                    backgroundColor: [
+                        '#3B82F6', '#10B981', '#8B5CF6', '#F59E0B', '#EF4444'
+                    ]
+                }]
+            }
+        });
 
-      // Country Distribution Chart
-      new Chart(document.getElementById('countryChart'), {
-          type: 'bar',
-          data: {
-              labels: [{% for item in posts_by_country %}'{{ item.country__name }}',{% endfor %}],
-              datasets: [{
-                  label: 'Number of Posts',
-                  data: [{% for item in posts_by_country %}{{ item.count }},{% endfor %}],
-                  backgroundColor: '#3B82F6'
-              }]
-          },
-          options: {
-              scales: {
-                  y: {
-                      beginAtZero: true
-                  }
-              }
-          }
-      });
+        // Country Distribution Chart
+        new Chart(document.getElementById('countryChart'), {
+            type: 'bar',
+            data: {
+                labels: [{% for item in posts_by_country %}'{{ item.country__name }}',{% endfor %}],
+                datasets: [{
+                    label: 'Number of Posts',
+                    data: [{% for item in posts_by_country %}{{ item.count }},{% endfor %}],
+                    backgroundColor: '#3B82F6'
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
 
-      // Weekly Trends Chart
-      new Chart(document.getElementById('monthlyTrendChart'), {
+        new Chart(document.getElementById('monthlyTrendChart'), {
           type: 'line',
           data: {
-              labels: [{% for item in posts_by_month %}'{{ item.week|date:"Y-W" }}',{% endfor %}],
-              datasets: [{
-                  label: 'Posts per Week',
-                  data: [{% for item in posts_by_month %}{{ item.count }},{% endfor %}],
-                  borderColor: '#3B82F6',
-                  tension: 0.1
-              },
-              {
-                  label: 'Reels per Week',
-                  data: [{% for item in reels_by_month %}{{ item.count }},{% endfor %}],
-                  borderColor: '#8B5CF6',
-                  tension: 0.1
-              }]
+              labels: [{% for post in posts_by_week %}
+                  '{{ post.week|date:"m" }}/{{ post.week|date:"W" }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+              datasets: [
+                  {
+                      label: 'Posts per Week',
+                      data: [{% for post in posts_by_week %}{{ post.count }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+                      borderColor: '#3B82F6',
+                      tension: 0.1
+                  },
+                  {
+                      label: 'Reels per Week',
+                      data: [{% for post in reels_by_week %}{{ post.count }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+                      borderColor: '#8B5CF6',
+                      tension: 0.1
+                  }
+              ]
           },
           options: {
               scales: {
+                  x: {
+                      title: {
+                          display: true,
+                          text: 'Month/Week'
+                      }
+                  },
                   y: {
                       beginAtZero: true
                   }

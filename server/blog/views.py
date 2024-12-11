@@ -373,6 +373,25 @@ def dashboard(request):
     
     recent_reels_list = Reel.objects.select_related('user').order_by('-created_at')[:10]
     
+    # 獲取最近52週的文章和影片統計
+    one_year_ago = timezone.now() - timedelta(days=365)
+    
+    posts_by_week = Post.objects.filter(
+        created_at__gte=one_year_ago
+    ).annotate(
+        week=TruncWeek('created_at')
+    ).values('week').annotate(
+        count=Count('id')
+    ).order_by('-week')
+
+    reels_by_week = Reel.objects.filter(
+        created_at__gte=one_year_ago
+    ).annotate(
+        week=TruncWeek('created_at')
+    ).values('week').annotate(
+        count=Count('id')
+    ).order_by('-week')
+
     context = {
         'total_posts': total_posts,
         'total_authors': total_authors,
@@ -390,6 +409,8 @@ def dashboard(request):
         'posts_by_user': posts_by_user,
         'posts_with_most_images': posts_with_most_images,
         'recent_reels_list': recent_reels_list, 
+        'posts_by_week': posts_by_week,
+        'reels_by_week': reels_by_week,
     }
     
     return render(request, 'dashboard.html', context)
